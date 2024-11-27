@@ -2,7 +2,7 @@ package src;
 
 import java.nio.file.Paths;
 
-public class GeraAlex {
+public class GeraAL {
 	
 	public static void main(String[] args) {
 		
