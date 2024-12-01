@@ -9,7 +9,7 @@ public class GeraAL {
 		String rootPath = Paths.get("").toAbsolutePath().toString();
 		String subPath = "/src/main/java/src/";
 		
-		String file[] = {rootPath + subPath + "scanner.lex"};
+		String file[] = {rootPath + subPath + "scanner.flex"};
 		
 		jflex.Main.main(file);
 		
