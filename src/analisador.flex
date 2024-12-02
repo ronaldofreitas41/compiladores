@@ -35,18 +35,15 @@ import java.util.ArrayList;
        }
 %}
 
-identifier = [a-z]+
-number = [0-9]+
-white =  [ \n\t\r]+ | {comment}
-comment = "{-" ~"-}"
+identifier = [a-zA-Z]+
 intNumber = [0-9]+
+white =  [ \n\t\r]+ | {comment} | "'\\n'" | "'\\t'" | "'\\r'"
+comment = "{-" ~"-}"
 
 %%
 
 <YYINITIAL>{
 "--"  !([^]* \R [^]*) \R  {}
-
-{white}        {/* Ignore whitespaces */ continue;} 
 
 "true"         { return new Token(yyline, yycolumn, TK.TRUE); }
 "false"        { return new Token(yyline, yycolumn, TK.FALSE); }
@@ -94,7 +91,9 @@ intNumber = [0-9]+
 {intNumber}    { return new Token(yyline, yycolumn, TK.INTNUMBER, toInt(yytext())); }
 
 "["            { yybegin(ARR); arr = new ArrayList<>(); }
-[^]            { throw new Error("Illegal character <" + yytext() + ">"); }
+{white}        {/* While reading whites do nothing*/ }
+[^]            {/* Matches any char form the input*/
+                throw new Error("Illegal character <"+ yytext()+">"); }
 }
 
 <ARR>{
