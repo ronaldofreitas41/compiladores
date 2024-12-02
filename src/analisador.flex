@@ -35,16 +35,17 @@ import java.util.ArrayList;
        }
 %}
 
-identifier = [a-zA-Z_][a-zA-Z0-9_]*
+identifier = [a-z]+
+number = [0-9]+
+white =  [ \n\t\r]+ | {comment}
+comment = "{-" ~"-}"
 intNumber = [0-9]+
-floatNumber = [0-9]+\.[0-9]+
-white = [ \n\t\r]+
-comment = "--[^\n]*"
-        | "{-" [^}-]* "-}"
+
 %%
 
 <YYINITIAL>{
-{comment}      {/* Ignore comments */}
+"--"  !([^]* \R [^]*) \R  {}
+
 {white}        {/* Ignore whitespaces */}
 
 "true"         { return new Token(yyline, yycolumn, TK.TRUE); }
