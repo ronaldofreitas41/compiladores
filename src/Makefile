@@ -17,4 +17,4 @@ default_test:
 	java Main $@
 
 clean:
-	rm -f *.class Analisador.java
+	rm -f *.class Analisador.java *.java~
