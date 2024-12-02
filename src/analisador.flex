@@ -1,11 +1,9 @@
-/* 1/12/2024 - Analisador Lexico
- * Bernardo Lucas de Araujo Dias - 20.1.8011
- * Ronaldo Luiz de Freitas Santos - 20.1.8113
- * Example of a lexer for a simple calculator language, adapted for lang.
- */
+/*
+    Bernardo Lucas de Araujo Dias - 20.1.8011
+    Ronaldo Luiz de Freitas Santos - 20.1.8113
+*/
 
 import java.util.ArrayList;
-
 %%
 
 %public
@@ -46,6 +44,8 @@ comment = "--[^\n]*"
 %%
 
 <YYINITIAL>{
+{comment}      {/* Ignore comments */}
+{white}        {/* Ignore whitespaces */}
 
 "true"         { return new Token(yyline, yycolumn, TK.TRUE); }
 "false"        { return new Token(yyline, yycolumn, TK.FALSE); }
@@ -87,9 +87,8 @@ comment = "--[^\n]*"
 ","            { return new Token(yyline, yycolumn, TK.COMMA); }
 ":"            { return new Token(yyline, yycolumn, TK.COLON); }
 "."            { return new Token(yyline, yycolumn, TK.DOT); }
+"'"            { return new Token(yyline, yycolumn, TK.MARK); }
 
-{comment}      {/* Ignore comments */}
-{white}        {/* Ignore whitespaces */}
 {identifier}   { return new Token(yyline, yycolumn, TK.IDENTIFIER, yytext()); }
 {intNumber}    { return new Token(yyline, yycolumn, TK.INTNUMBER, toInt(yytext())); }
 

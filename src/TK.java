@@ -40,5 +40,6 @@ public enum TK {
     BOOL,
     CHAR,
     EOF,
-    ARR
+    ARR,
+    MARK
 }
