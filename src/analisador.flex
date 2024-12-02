@@ -46,7 +46,7 @@ intNumber = [0-9]+
 <YYINITIAL>{
 "--"  !([^]* \R [^]*) \R  {}
 
-{white}        {/* Ignore whitespaces */}
+{white}        {/* Ignore whitespaces */ continue;} 
 
 "true"         { return new Token(yyline, yycolumn, TK.TRUE); }
 "false"        { return new Token(yyline, yycolumn, TK.FALSE); }
