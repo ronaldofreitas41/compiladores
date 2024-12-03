@@ -60,7 +60,8 @@ import java.util.ArrayList;
 
 identifier = [a-zA-Z]+
 intNumber = [0-9]+
-floatNumber = [0-9]+\.[0-9]+
+floatNumber = [0-9]+\.[0-9]*|\.[0-9]+|[0-9]+\.
+dots = \.\.
 white =  [ \n\t\r]+ | {comment} 
 escape = "'\\b'" | "'\\n'" | "'\\t'" | "'\\r'"
 ascII = "'\\[0-9]{1,3}'"
@@ -116,6 +117,8 @@ comment = "{-" ~"-}"
 {identifier}   { return new Token(yyline, yycolumn, TK.IDENTIFIER, yytext()); }
 {intNumber}    { return new Token(yyline, yycolumn, TK.INTNUMBER, toInt(yytext())); }
 {floatNumber}  { return new Token(yyline, yycolumn, TK.FLOATNUMBER, toFloat(yytext())); }
+{dots}         { throw new Error("Sintaxe inválida: dois pontos seguidos <" + yytext() + ">"); }
+\.             { return new Token(yyline, yycolumn, TK.DOT); }
 {escape}       { return new Token(yyline, yycolumn, TK.ESCAPE, yytext()); }
 {ascII}        { return new Token(yyline, yycolumn, TK.ASCII, ascIIToChar(yytext())); }
 
