@@ -41,5 +41,7 @@ public enum TK {
     CHAR,
     EOF,
     ARR,
-    MARK
+    MARK,
+    ESCAPE,
+    ASCII,
 }

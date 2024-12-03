@@ -27,17 +27,43 @@ import java.util.ArrayList;
 
        private int toInt(String s) {
           try {
-              return Integer.parseInt(yytext());
+              return Integer.parseInt(s);
           } catch (NumberFormatException e) {
               System.out.println("Impossible error converting " + s + " to integer");
               return 0;
           }
        }
+
+    private float toFloat(String s) {
+          try {
+              return Float.parseFloat(s);
+          } catch (NumberFormatException e) {
+              System.out.println("Impossible error converting " + s + " to integer");
+              return 0;
+          }
+       }
+
+    private char ascIIToChar(String s) {
+
+    String octalValue = s.substring(2, s.length() - 1); 
+
+    try {
+        // Converte o valor octal para um inteiro e depois para char
+        int decimalValue = Integer.parseInt(octalValue, 8);
+        return (char) decimalValue;
+    } catch (NumberFormatException e) {
+        throw new Error("Erro ao converter o valor octal '" + s + "' em um caractere ASCII.");
+    }
+}
+
 %}
 
 identifier = [a-zA-Z]+
 intNumber = [0-9]+
-white =  [ \n\t\r]+ | {comment} | "'\\n'" | "'\\t'" | "'\\r'"
+floatNumber = [0-9]+\.[0-9]+
+white =  [ \n\t\r]+ | {comment} 
+escape = "'\\b'" | "'\\n'" | "'\\t'" | "'\\r'"
+ascII = "'\\[0-9]{1,3}'"
 comment = "{-" ~"-}"
 
 %%
@@ -89,6 +115,9 @@ comment = "{-" ~"-}"
 
 {identifier}   { return new Token(yyline, yycolumn, TK.IDENTIFIER, yytext()); }
 {intNumber}    { return new Token(yyline, yycolumn, TK.INTNUMBER, toInt(yytext())); }
+{floatNumber}  { return new Token(yyline, yycolumn, TK.FLOATNUMBER, toFloat(yytext())); }
+{escape}       { return new Token(yyline, yycolumn, TK.ESCAPE, yytext()); }
+{ascII}        { return new Token(yyline, yycolumn, TK.ASCII, ascIIToChar(yytext())); }
 
 "["            { yybegin(ARR); arr = new ArrayList<>(); }
 {white}        {/* While reading whites do nothing*/ }
