@@ -23,25 +23,25 @@ import java.util.ArrayList;
 %state ARR,
 
 %{
-       private ArrayList<Integer> arr;
+    private ArrayList<Integer> arr;
 
-       private int toInt(String s) {
-          try {
-              return Integer.parseInt(s);
-          } catch (NumberFormatException e) {
-              System.out.println("Impossible error converting " + s + " to integer");
-              return 0;
-          }
-       }
+    private int toInt(String s) {
+      try {
+          return Integer.parseInt(s);
+      } catch (NumberFormatException e) {
+          System.out.println("Impossible error converting " + s + " to integer");
+          return 0;
+      }
+    }
 
     private float toFloat(String s) {
-          try {
-              return Float.parseFloat(s);
-          } catch (NumberFormatException e) {
-              System.out.println("Impossible error converting " + s + " to integer");
-              return 0;
-          }
-       }
+      try {
+        return Float.parseFloat(s);
+      } catch (NumberFormatException e) {
+        System.out.println("Impossible error converting " + s + " to integer");
+        return 0;
+      }
+    }
 
     private char ascIIToChar(String s) {
 

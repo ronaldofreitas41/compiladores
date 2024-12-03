@@ -1,7 +1,26 @@
+/*
+    Bernardo Lucas de Araujo Dias - 20.1.8011
+    Ronaldo Luiz de Freitas Santos - 20.1.8113
+*/
+
 public enum TK {
-    IDENTIFIER,
-    INTNUMBER,
-    FLOATNUMBER,
+    TRUE,
+    FALSE,
+
+    DATA,
+    IF,
+    ELSE,
+    READ,
+    PRINT,
+    RETURN,
+    NULL,
+    ITERATE,
+
+    INT,
+    FLOAT,
+    CHAR,
+    BOOL,
+
     EQUAL,
     DIFFERENT,
     LESSEQUAL,
@@ -24,24 +43,15 @@ public enum TK {
     SEMICOLON,
     COMMA,
     COLON,
-    DOT,
-    TRUE,
-    FALSE,
-    DATA,
-    IF,
-    ELSE,
-    READ,
-    PRINT,
-    RETURN,
-    NULL,
-    ITERATE,
-    INT,
-    FLOAT,
-    BOOL,
-    CHAR,
-    EOF,
     ARR,
     MARK,
+
+    IDENTIFIER,
+    INTNUMBER,
+    FLOATNUMBER,
+    DOT,
     ESCAPE,
     ASCII,
+
+    EOF,
 }

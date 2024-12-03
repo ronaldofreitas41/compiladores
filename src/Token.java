@@ -1,3 +1,8 @@
+/*
+    Bernardo Lucas de Araujo Dias - 20.1.8011
+    Ronaldo Luiz de Freitas Santos - 20.1.8113
+*/
+
 public class Token {
 
     public Object value;
