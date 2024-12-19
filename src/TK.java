@@ -49,4 +49,5 @@ public enum TK {
     DOT,
     TYID,
     EOF,
+    DOUBLECOLON,
 }

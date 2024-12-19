@@ -81,7 +81,7 @@ char = "'" [^'\\] "'" |"'" "\\" [ntbr\\\'\"] "'" | "'" "\\" [0-9]{3} "'"
 "<="           { return new Token(yyline, yycolumn, TK.LESSEQUAL); }
 ">="           { return new Token(yyline, yycolumn, TK.GREATEREQUAL); }
 "&&"           { return new Token(yyline, yycolumn, TK.AND); }
-"::"           { return new Token(yyline, yycolumn, TK.PARAMETER); }
+"::"           { return new Token(yyline, yycolumn, TK.DOUBLECOLON); }
 "="            { return new Token(yyline, yycolumn, TK.ASSIGN); }
 "<"            { return new Token(yyline, yycolumn, TK.LESS); }
 ">"            { return new Token(yyline, yycolumn, TK.GREATER); }
@@ -101,7 +101,10 @@ char = "'" [^'\\] "'" |"'" "\\" [ntbr\\\'\"] "'" | "'" "\\" [0-9]{3} "'"
 "."            { return new Token(yyline, yycolumn, TK.DOT); }
 "'"            { return new Token(yyline, yycolumn, TK.MARK); }
 
+
+
 {identifier}   { return new Token(yyline, yycolumn, TK.IDENTIFIER, yytext()); }
+{TYID}         { return new Token(yyline, yycolumn, TK.TYID, yytext()); }
 {intNumber}    { return new Token(yyline, yycolumn, TK.INTNUMBER, toInt(yytext())); }
 {floatNumber}  { return new Token(yyline, yycolumn, TK.FLOATNUMBER, toFloat(yytext())); }
 {char}         { return new Token(yyline, yycolumn, TK.CHARACTER, yytext());}
