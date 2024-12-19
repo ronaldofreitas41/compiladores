@@ -43,29 +43,16 @@ import java.util.ArrayList;
       }
     }
 
-    private char ascIIToChar(String s) {
-
-    String octalValue = s.substring(2, s.length() - 1); 
-
-    try {
-        // Converte o valor octal para um inteiro e depois para char
-        int decimalValue = Integer.parseInt(octalValue, 8);
-        return (char) decimalValue;
-    } catch (NumberFormatException e) {
-        throw new Error("Erro ao converter o valor octal '" + s + "' em um caractere ASCII.");
-    }
-}
 
 %}
 
-identifier = [a-zA-Z]+
+identifier = [a-z][a-zA-Z0-9_]*
+TYID = [A-Z][a-zA-Z0-9_]*
 intNumber = [0-9]+
-floatNumber = [0-9]+\.[0-9]*|\.[0-9]+|[0-9]+\.
-dots = \.\.
+floatNumber = [0-9]+(\.[0-9]+)?
 white =  [ \n\t\r]+ | {comment} 
-escape = "'\\b'" | "'\\n'" | "'\\t'" | "'\\r'"
-ascII = "'\\[0-9]{1,3}'"
 comment = "{-" ~"-}"
+char = "'" [^'\\] "'" |"'" "\\" [ntbr\\\'\"] "'" | "'" "\\" [0-9]{3} "'"
 
 %%
 
@@ -117,19 +104,10 @@ comment = "{-" ~"-}"
 {identifier}   { return new Token(yyline, yycolumn, TK.IDENTIFIER, yytext()); }
 {intNumber}    { return new Token(yyline, yycolumn, TK.INTNUMBER, toInt(yytext())); }
 {floatNumber}  { return new Token(yyline, yycolumn, TK.FLOATNUMBER, toFloat(yytext())); }
-{dots}         { throw new Error("Sintaxe inválida: dois pontos seguidos <" + yytext() + ">"); }
-\.             { return new Token(yyline, yycolumn, TK.DOT); }
-{escape}       { return new Token(yyline, yycolumn, TK.ESCAPE, yytext()); }
-{ascII}        { return new Token(yyline, yycolumn, TK.ASCII, ascIIToChar(yytext())); }
-
-"["            { yybegin(ARR); arr = new ArrayList<>(); }
+{char}         { return new Token(yyline, yycolumn, TK.CHARACTER, yytext());}
 {white}        {/* While reading whites do nothing*/ }
 [^]            {/* Matches any char form the input*/
                 throw new Error("Illegal character <"+ yytext()+">"); }
 }
 
-<ARR>{
-{intNumber}       { arr.add(toInt(yytext())); }
-{white}        {/* Ignore whitespaces */}
-"]"            { yybegin(YYINITIAL); return new Token(yyline, yycolumn, TK.ARR, arr); }
-}
+

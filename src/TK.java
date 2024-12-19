@@ -6,7 +6,6 @@
 public enum TK {
     TRUE,
     FALSE,
-
     DATA,
     IF,
     ELSE,
@@ -15,12 +14,10 @@ public enum TK {
     RETURN,
     NULL,
     ITERATE,
-
     INT,
     FLOAT,
     CHAR,
     BOOL,
-
     EQUAL,
     DIFFERENT,
     LESSEQUAL,
@@ -45,13 +42,11 @@ public enum TK {
     COLON,
     ARR,
     MARK,
-
+    CHARACTER,
     IDENTIFIER,
     INTNUMBER,
     FLOATNUMBER,
     DOT,
-    ESCAPE,
-    ASCII,
-
+    TYID,
     EOF,
 }
