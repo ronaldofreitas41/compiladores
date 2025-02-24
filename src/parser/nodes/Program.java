@@ -1,7 +1,7 @@
-package nodes;
+package parser.nodes;
 
-import nodes.visitors.LVisitor;
-import nodes.decl.FunDef;
+import parser.nodes.visitors.LVisitor;
+import parser.nodes.decl.FunDef;
 
 import java.util.ArrayList;
 
@@ -20,3 +20,4 @@ public class Program extends LNode {
     public void accept(LVisitor v) {
         v.visit(this);
     }
+}

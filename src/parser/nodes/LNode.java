@@ -1,6 +1,6 @@
-package nodes;
+package parser.nodes;
 
-import nodes.visitors.LVisitor;
+import parser.nodes.visitors.LVisitor;
 
 public abstract class LNode {
     private int l, c;

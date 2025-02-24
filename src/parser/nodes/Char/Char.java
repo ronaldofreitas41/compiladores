@@ -1,4 +1,6 @@
-package nodes.charTokens;
+package parser.nodes.Char;
+
+import parser.nodes.LNode;
 
 public abstract class Char extends LNode {
     private final char value;
