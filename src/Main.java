@@ -1,6 +1,9 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import lexer.TK;
+import lexer.Token;
+
 public class Main {
 
     @SuppressWarnings({"CallToPrintStackTrace"})

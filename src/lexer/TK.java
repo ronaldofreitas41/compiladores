@@ -1,3 +1,4 @@
+package lexer;
 /*
     Bernardo Lucas de Araujo Dias - 20.1.8011
     Ronaldo Luiz de Freitas Santos - 20.1.8113
@@ -49,5 +50,7 @@ public enum TK {
     DOT,
     TYID,
     EOF,
+    LCOLCH,
+    RCOLCH,
     DOUBLECOLON,
 }

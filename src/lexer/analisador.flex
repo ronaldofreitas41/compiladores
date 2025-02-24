@@ -42,7 +42,7 @@ import java.util.ArrayList;
         return 0;
       }
     }
-
+    // adicionar a função de converter o ASCII para char
 
 %}
 
@@ -100,6 +100,8 @@ char = "'" [^'\\] "'" |"'" "\\" [ntbr\\\'\"] "'" | "'" "\\" [0-9]{3} "'"
 ":"            { return new Token(yyline, yycolumn, TK.COLON); }
 "."            { return new Token(yyline, yycolumn, TK.DOT); }
 "'"            { return new Token(yyline, yycolumn, TK.MARK); }
+"["            { return new Token(yyline, yycolumn, TK.LCOLCH); }
+"]"            { return new Token(yyline, yycolumn, TK.RCOLCH); }
 
 
 

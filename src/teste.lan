@@ -1,4 +1,0 @@
-main() {
-  Xinput = '\n';
-  return 0;
-}
