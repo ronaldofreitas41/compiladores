@@ -1,5 +1,9 @@
 package parser.nodes.literals;
 
-public class Lit {
-    
+import parser.nodes.LNode;
+
+public abstract class Lit extends LNode {
+    public Lit(int l, int c) {
+        super(l, c);
+    }
 }

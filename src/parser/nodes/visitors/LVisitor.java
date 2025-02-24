@@ -23,15 +23,15 @@ public abstract class LVisitor {
 
     // Identificadores e tipos
     public abstract void visit(Identifier i); // ID, TYPE
-    public abstract void visit(TypeIdIdentifier i); // TYID
+    public abstract void visit(TypeId i); // TYID
     public abstract void visit(Ptr i); // PTR
 
     // Literais
-    public abstract void visit(IntLiteral l); // INT
-    public abstract void visit(Float l); // FLOAT
-    public abstract void visit(Char l); // CHAR
-    public abstract void visit(Bool l); // BOOL
-    public abstract void visit(NullLiteral l); // NULL
+    public abstract void visit(IntLt l); // INT
+    public abstract void visit(FloatLt l); // FLOAT
+    public abstract void visit(CharLt l); // CHAR
+    public abstract void visit(BoolLt l); // BOOL
+    public abstract void visit(NullLt l); // NULL
 
     // Operadores
     public abstract void visit(PlusOperator o); // PLUS
