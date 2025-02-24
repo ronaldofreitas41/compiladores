@@ -1,5 +1,9 @@
 package parser.nodes.operators;
 
-public class Op {
-    
+import parser.nodes.LNode;
+
+public abstract class Op extends LNode {
+    public Op(int l, int c){
+        super(l,c);
+    }
 }

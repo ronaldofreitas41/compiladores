@@ -1,5 +1,17 @@
 package parser.nodes.operators;
 
-public class Gt {
-    
+import parser.nodes.visitors.*;
+
+public abstract class Gt extends Bin {
+    public Gt(int line, int col, Op el, Op er) {
+        super(line, col, el, er);
+    }
+
+    public String toString() {
+        return ">";
+    }
+
+    public void accept(LVisitor v) {
+        v.visit(this);
+    }
 }

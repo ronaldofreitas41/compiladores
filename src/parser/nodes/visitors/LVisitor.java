@@ -34,17 +34,17 @@ public abstract class LVisitor {
     public abstract void visit(NullLt l); // NULL
 
     // Operadores
-    public abstract void visit(PlusOperator o); // PLUS
-    public abstract void visit(MinusOperator o); // MINUS
-    public abstract void visit(MultOperator o); // MULT
-    public abstract void visit(DivOperator o); // DIV
-    public abstract void visit(ModOperator o); // MOD
-    public abstract void visit(AtbrOperator o); // ATBR
-    public abstract void visit(EqOperator o); // EQ
-    public abstract void visit(NeqOperator o); // NEQ
-    public abstract void visit(LtOperator o); // LT
-    public abstract void visit(GtOperator o); // GT
-    public abstract void visit(DotOperator o); // DOT
+    public abstract void visit(Plus o); // PLUS
+    public abstract void visit(Minus o); // MINUS
+    public abstract void visit(Mult o); // MULT
+    public abstract void visit(Div o); // DIV
+    public abstract void visit(Mod o); // MOD
+    public abstract void visit(Atr o); // ATBR
+    public abstract void visit(Eq o); // EQ
+    public abstract void visit(Neq o); // NEQ
+    public abstract void visit(Lt o); // LT
+    public abstract void visit(Gt o); // GT
+    public abstract void visit(Dot o); // DOT
 
     // Delimitadores
     public abstract void visit(LBrace d); // LBRACE
@@ -57,7 +57,7 @@ public abstract class LVisitor {
     public abstract void visit(Semicolon d); // SEMICOLON
 
     // Char tokens
-    public abstract void visit(CharToken c); // NEWLINE, TAB, BACKSPACE, CARRIAGERETURN, BACKSLASH, SINGLEQUOTE, DOUBLEQUOTE, ASC
+    public abstract void visit(CharTK c); // NEWLINE, TAB, BACKSPACE, CARRIAGERETURN, BACKSLASH, SINGLEQUOTE, DOUBLEQUOTE, ASC
 
     // Outros
     public abstract void visit(FunDef x);
