@@ -1,9 +1,9 @@
-package tarefa.nodes;
+package  nodes;
 
 import java.util.ArrayList;
 
-import tarefa.nodes.decl.FunDef;
-import tarefa.nodes.visitors.LVisitor;
+import  nodes.decl.FunDef;
+import  nodes.visitors.LVisitor;
 
 public class Program extends LNode {
     private ArrayList<FunDef> funcs;

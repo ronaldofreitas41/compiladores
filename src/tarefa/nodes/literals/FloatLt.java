@@ -1,6 +1,6 @@
-package tarefa.nodes.literals;
+package  nodes.literals;
 
-import tarefa.nodes.visitors.*;
+import  nodes.visitors.*;
 
 public class FloatLt extends Lit {
     public float value;

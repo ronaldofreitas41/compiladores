@@ -1,6 +1,6 @@
-package tarefa.nodes.operators;
+package  nodes.operators;
 
-import tarefa.nodes.visitors.*;
+import  nodes.visitors.*;
 
 public abstract class Eq extends Bin {
     public Eq(int line, int col, Op el, Op er) {

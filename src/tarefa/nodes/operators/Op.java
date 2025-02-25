@@ -1,6 +1,6 @@
-package tarefa.nodes.operators;
+package  nodes.operators;
 
-import tarefa.nodes.LNode;
+import  nodes.LNode;
 
 public abstract class Op extends LNode {
     public Op(int l, int c){

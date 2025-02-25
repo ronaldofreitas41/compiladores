@@ -1,10 +1,10 @@
-import tarefa.nodes.ident.*;
-import tarefa.nodes.literals.*;
-import tarefa.nodes.reserved.*;
-import tarefa.nodes.Program;
-import tarefa.nodes.decl.*;
-import tarefa.nodes.delimiters.*;
-import tarefa.nodes.eof.*;
+import nodes.ident.*;
+import nodes.literals.*;
+import nodes.reserved.*;
+import nodes.Program;
+import nodes.decl.*;
+import nodes.delimiters.*;
+import nodes.eof.*;
 import java.util.ArrayList;
 import java.util.List;
 

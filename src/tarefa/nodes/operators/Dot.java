@@ -1,6 +1,6 @@
-package tarefa.nodes.operators;
+package  nodes.operators;
 
-import tarefa.nodes.visitors.*;
+import  nodes.visitors.*;
 
 public abstract class Dot extends Bin {
     public Dot(int line, int col, Op el, Op er) {

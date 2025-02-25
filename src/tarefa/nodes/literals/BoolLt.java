@@ -1,6 +1,6 @@
-package tarefa.nodes.literals;
+package  nodes.literals;
 
-import tarefa.nodes.visitors.*;
+import  nodes.visitors.*;
 
 public class BoolLt extends Lit {
     public boolean value;

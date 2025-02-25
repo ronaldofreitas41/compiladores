@@ -1,6 +1,6 @@
-package tarefa.nodes.literals;
+package  nodes.literals;
 
-import tarefa.nodes.visitors.*;
+import  nodes.visitors.*;
 
 public class NullLt extends Lit {
     public NullLt(int line, int col) {

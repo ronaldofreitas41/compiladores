@@ -1,8 +1,8 @@
-package tarefa.nodes.decl;
+package  nodes.decl;
 
-import tarefa.nodes.LNode;
-import tarefa.nodes.literals.*;
-import tarefa.nodes.visitors.*;
+import  nodes.LNode;
+import  nodes.literals.*;
+import  nodes.visitors.*;
 
 public class Bind extends LNode {
 

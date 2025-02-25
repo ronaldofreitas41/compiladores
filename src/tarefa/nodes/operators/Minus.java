@@ -1,6 +1,6 @@
-package tarefa.nodes.operators;
+package  nodes.operators;
 
-import tarefa.nodes.visitors.*;
+import  nodes.visitors.*;
 
 public abstract class Minus extends Bin {
     public Minus(int line, int col, Op el, Op er) {

@@ -1,14 +1,14 @@
-package tarefa.nodes.visitors;
+package  nodes.visitors;
 
-import tarefa.nodes.Program;
-import tarefa.nodes.Char.*;
-import tarefa.nodes.decl.*;
-import tarefa.nodes.delimiters.*;
-import tarefa.nodes.eof.*;
-import tarefa.nodes.ident.*;
-import tarefa.nodes.literals.*;
-import tarefa.nodes.operators.*;
-import tarefa.nodes.reserved.*;
+import  nodes.Program;
+import  nodes.Char.*;
+import  nodes.decl.*;
+import  nodes.delimiters.*;
+import  nodes.eof.*;
+import  nodes.ident.*;
+import  nodes.literals.*;
+import  nodes.operators.*;
+import  nodes.reserved.*;
 
 public abstract class LVisitor {
     public abstract void visit(Program p);

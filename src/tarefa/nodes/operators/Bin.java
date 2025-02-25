@@ -1,4 +1,4 @@
-package tarefa.nodes.operators;
+package  nodes.operators;
 
 public abstract class Bin extends Op {
       private Op left, right;

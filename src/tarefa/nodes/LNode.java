@@ -1,6 +1,6 @@
-package tarefa.nodes;
+package  nodes;
 
-import tarefa.nodes.visitors.LVisitor;
+import  nodes.visitors.LVisitor;
 
 public abstract class LNode {
     private int l, c;

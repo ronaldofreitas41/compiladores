@@ -1,6 +1,6 @@
-package tarefa.nodes.Char;
+package  nodes.Char;
 
-import tarefa.nodes.LNode;
+import  nodes.LNode;
 
 public abstract class CharTK extends LNode {
     private final char value;

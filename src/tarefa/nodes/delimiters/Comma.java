@@ -1,6 +1,6 @@
-package tarefa.nodes.delimiters;
+package  nodes.delimiters;
 
-import tarefa.nodes.visitors.LVisitor;
+import  nodes.visitors.LVisitor;
 
 public class Comma extends Delimiter {
     public Comma(int line, int col) {

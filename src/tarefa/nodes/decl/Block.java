@@ -1,9 +1,9 @@
-package tarefa.nodes.decl;
+package  nodes.decl;
 
 import java.util.ArrayList;
 
-import tarefa.nodes.LNode;
-import tarefa.nodes.visitors.*;
+import  nodes.LNode;
+import  nodes.visitors.*;
 
 public class Block extends LNode {
     private ArrayList<LNode> statements;

@@ -1,7 +1,7 @@
-package tarefa.nodes.reserved;
+package  nodes.reserved;
 
-import tarefa.nodes.LNode;
-import tarefa.nodes.visitors.*;
+import  nodes.LNode;
+import  nodes.visitors.*;
 
 public abstract class Read extends LNode {
     private final LNode returnValue;

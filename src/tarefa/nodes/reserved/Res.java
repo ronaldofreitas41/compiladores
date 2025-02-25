@@ -1,6 +1,6 @@
-package tarefa.nodes.reserved;
+package  nodes.reserved;
 
-import tarefa.nodes.LNode;
+import  nodes.LNode;
 
 public abstract class Res extends LNode {
     public Res(int l, int c){

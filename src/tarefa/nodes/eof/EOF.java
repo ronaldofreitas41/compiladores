@@ -1,7 +1,7 @@
-package tarefa.nodes.eof;
+package  nodes.eof;
 
-import tarefa.nodes.LNode;
-import tarefa.nodes.visitors.*;
+import  nodes.LNode;
+import  nodes.visitors.*;
 
 public class EOF extends LNode {
     public EOF(int line, int col) { 

@@ -1,7 +1,7 @@
-package tarefa.nodes.ident;
+package  nodes.ident;
 
-import tarefa.nodes.LNode;
-import tarefa.nodes.visitors.*;
+import  nodes.LNode;
+import  nodes.visitors.*;
 
 public class TypeId extends LNode {
     private String typeName;
