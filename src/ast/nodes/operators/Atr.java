@@ -1,6 +1,7 @@
-package  nodes.operators;
+package  ast.nodes.operators;
 
-import  nodes.visitors.*;
+import  ast.nodes.visitors.LVisitor;
+
 
 public abstract class Atr extends Bin {
     public Atr(int line, int col, Op el, Op er) {

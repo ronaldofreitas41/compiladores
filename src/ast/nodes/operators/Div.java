@@ -1,6 +1,6 @@
-package  nodes.operators;
+package  ast.nodes.operators;
 
-import  nodes.visitors.*;
+
 
 public abstract class Div extends Bin {
     public Div(int line, int col, Op el, Op er) {
@@ -11,7 +11,7 @@ public abstract class Div extends Bin {
         return "/";
     }
 
-    public void accept(LVisitor v) {
+    public void accept(nodes.visitors.LVisitor v) {
         v.visit(this);
     }
 }

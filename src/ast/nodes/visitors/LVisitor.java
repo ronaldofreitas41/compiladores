@@ -1,14 +1,14 @@
 package  nodes.visitors;
 
 import  nodes.Program;
-import  nodes.Char.*;
-import  nodes.decl.*;
-import  nodes.delimiters.*;
-import  nodes.eof.*;
-import  nodes.ident.*;
-import  nodes.literals.*;
-import  nodes.operators.*;
-import  nodes.reserved.*;
+import  ast.nodes.Char.*;
+import  ast.nodes.decl.*;
+import  ast.nodes.delimiters.*;
+import  ast.nodes.eof.*;
+import  ast.nodes.ident.*;
+import  ast.nodes.literals.*;
+import  ast.nodes.operators.*;
+import  ast.nodes.reserved.*;
 
 public abstract class LVisitor {
     public abstract void visit(Program p);

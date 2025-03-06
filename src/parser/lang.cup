@@ -1,58 +1,460 @@
-package parser;
+/*
+ * Lang Parser (.cup)
+ *
+ * Alunos: Bernardo Lucas de Araujo Dias: 20.1.8011
+ *         Ronaldo Luiz de Freitas Santos: 20.1.8113
+ *
+ * Este arquivo define, usando CUP, a gramática e as ações semânticas para gerar
+ * uma Árvore Sintática Abstrata (AST) para a linguagem Lang.
+ *
+ * A AST é composta por nós como Prog, Data, Func, Decl, Block, Cmd, Exp, etc.
+ * Cada produção da gramática cria um nó correspondente, armazenando informações
+ * sobre posições (linha e coluna) e os componentes semânticos necessários.
+ */
 
-class LangParser;
+package lang.parser;
+
+import java_cup.runtime.*;
+import lang.ast.*;
+import lang.ast.command.*;
+import lang.ast.expr.*;
+import lang.ast.types.*;
+import java.util.ArrayList;
+
+/* Código do Parser: código inserido diretamente na classe gerada (LangParser) */
 parser code {:
-    // Connect this parser to a scanner!
+    // Instância do lexer que fornece os tokens.
     LangLexer s;
-    public LangParser(LangLexer s){ this.s=s; }
-    // Get the line
+    public LangParser(LangLexer s) {
+        this.s = s;
+    }
+    // Aqui você pode adicionar métodos auxiliares, por exemplo, para tratar erros ou capturar posições.
 :}
 
-init with {:               :};
+/* Configuração do scanner: o parser chama s.nextToken() para obter o próximo token */
 scan with {: return s.nextToken(); :};
 
-// Declaração dos terminais
-terminal INT_LITERAL, TRUE, FALSE, PLUS; //Char, Bool, Float, TYID, ID, INT, FLOAT, CHAR
-//terminal LBRACE, RBRACE, LPAREN, RPAREN, LBRACK, RBRACK;
-//terminal COLONCOLON, EQUALS, AND, LT, EQ, NEQ, PLUS, MINUS, STAR, SLASH, PERCENT, NOT;
-//terminal IF, ELSE, ITERATE, READ, PRINT, RETURN, NEW, NULL, TRUE, FALSE;
+/**
+  * Declaração de terminais.
+  * Estes tokens devem ser reconhecidos pelo lexer.
+  */
+terminal DATA, IF, ITERATE, RETURN, PRINT, READ;
+terminal LBRACE, RBRACE, LP, RP, LBRACK, RBRACK, DOT, SEMICOLON, COLON, COMMA, DOUBLECOLON;
+terminal PLUS, MINUS, TIMES, DIVIDE, LT, EQEQ, NEQ, AND, OR, NOT;
+terminal Integer NUMBER;
+terminal Boolean TRUE, FALSE;
+terminal String ID, TYID;
 
-// Declaração dos não terminais
-non terminal exp;
-
-precedence left PLUS;
-exp ::= INT_LITERAL 
-    | TRUE
-    | FALSE
-    | exp PLUS exp  
-    ;
-
-
-/* Produções
-prod prog ::= data func;
-prod data ::= "data" TYID LPAREN decl RPAREN;
-prod decl ::= ID EQUALS type SEMI;
-prod func ::= ID LPAREN params RPAREN ( COLON type ( COMMA type )* )? block;
-prod params ::= ID COLONCOLON type ( COMMA ID COLONCOLON type )*;
-prod type ::= btype | type LBRACK RBRACK;
-prod btype ::= Int | Char | Bool | Float | TYID;
-prod block ::= LBRACE cmd RBRACE;
-prod stmtBlock ::= block | cmd;
-prod cmd ::= IF LPAREN exp RPAREN stmtBlock
-           | IF LPAREN exp RPAREN stmtBlock ELSE stmtBlock
-           | ITERATE LPAREN loopCond RPAREN stmtBlock
-           | READ lvalue SEMI
-           | PRINT exp SEMI
-           | RETURN exp ( COMMA exp )* SEMI
-           | lvalue EQUALS exp SEMI
-           | ID LPAREN exps RPAREN ( LT lvalue ( COMMA lvalue )* GT )? SEMI;
-prod loopCond ::= exp;
-prod exp ::= exp AND exp | rexp;
-prod rexp ::= aexp LT aexp | rexp EQ aexp | rexp NEQ aexp | aexp;
-prod aexp ::= aexp PLUS mexp | aexp MINUS mexp | mexp;
-prod mexp ::= mexp STAR sexp | mexp SLASH sexp | mexp PERCENT sexp | sexp;
-prod sexp ::= NOT sexp | MINUS sexp | TRUE | FALSE | NULL | INT | FLOAT | CHAR | pexp;
-prod pexp ::= lvalue | LPAREN exp RPAREN | NEW type ( LBRACK exp RBRACK )? | ID LPAREN exps RPAREN LBRACK exp RBRACK | ID;
-prod lvalue ::= lvalue LBRACK exp RBRACK | lvalue DOT ID;
-prod exps ::= exp ( COMMA exp )*; 
+/*
+    Declaração de não-terminais.
+    Estes símbolos representam os nós da AST ou estruturas que ajudamos a construir a árvore.
 */
+non terminal Prog prog;
+non terminal Data data;
+non terminal Func func;
+non terminal Decl decl;
+non terminal Exp exp; // Outras expressões (aexp, mexp, etc.) serão definidas abaixo.
+non terminal Cmd cmd;
+non terminal Block block;
+non terminal Type type;
+non terminal Param param;
+
+/*
+    Precedência e associatividade dos operadores.
+    A ordem das declarações define a precedência, onde os operadores declarados por último têm maior
+    precedência. Por exemplo, TIMES e DIVIDE têm maior precedência que PLUS e MINUS.
+*/
+precedence left OR;
+precedence left AND;
+precedence left EQEQ, NEQ;
+precedence left LT;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence right NOT;
+
+/*
+   ============================================================
+   Gramática
+   ============================================================
+*/
+
+/*
+   1. Regra Programa (prog)
+      Um programa consiste de uma lista de definições de dados seguida de uma lista de funções.
+*/
+prog ::= dataList funcList
+         {:
+           // Constrói o nó raiz do programa utilizando as listas de dados e funções.
+           RESULT = new Prog($1, $2);
+         :}
+         ;
+
+/*
+   Regra para listas de dados (dataList).
+   Pode ser vazia ou conter uma ou mais definições de dados.
+*/
+dataList ::= /* vazio */
+              {:
+                 RESULT = new ArrayList<Data>();
+              :}
+           | dataList data
+              {:
+                 ((ArrayList<Data>)$1).add($2);
+                 RESULT = $1;
+              :}
+           ;
+
+/*
+   2. Regra Data
+      Define um tipo de dado que possui um nome (TYID) e uma lista de declarações.
+      Sintaxe: DATA TYID LBRACE declList RBRACE
+*/
+data ::= DATA TYID LBRACE declList RBRACE
+         {:
+            // Cria o nó Data com o nome do tipo (extraído do token TYID) e a lista de declarações.
+            RESULT = new Data(((Symbol)$2).value, $4);
+         :}
+         ;
+
+/*
+   Regra para a lista de declarações (declList) em um Data.
+   Pode ser vazia ou conter várias declarações.
+*/
+declList ::= /* vazio */
+              {:
+                 RESULT = new ArrayList<Decl>();
+              :}
+           | declList decl
+              {:
+                 ((ArrayList<Decl>)$1).add($2);
+                 RESULT = $1;
+              :}
+           ;
+
+/*
+   3. Regra Decl
+      Declaração de variável dentro de um Data.
+      Sintaxe: ID DOUBLECOLON type SEMICOLON
+*/
+decl ::= ID DOUBLECOLON type SEMICOLON
+         {:
+            RESULT = new Decl(((Symbol)$1).value, $3);
+         :}
+         ;
+
+/*
+   Regra para Type:
+      Consideramos aqui uma definição simples, onde o tipo é definido apenas por um identificador.
+*/
+type ::= TYID
+         {:
+            RESULT = new Type(((Symbol)$1).value);
+         :}
+         ;
+
+/*
+   4. Regra Func
+      Define uma função com nome, lista de parâmetros, (opcional) lista de tipos de retorno e um bloco de comandos.
+      Sintaxe: ID LP [paramList] RP [COLON type (COMMA type)*] block
+*/
+func ::= ID LP paramList RP retType block
+         {:
+            RESULT = new Func(((Symbol)$1).value, $3, $5, $6);
+         :}
+         ;
+
+/*
+   Regra para a lista de parâmetros (paramList).
+   Pode ser vazia ou conter um ou mais parâmetros separados por vírgula.
+*/
+paramList ::= /* vazio */
+              {:
+                 RESULT = new ArrayList<Param>();
+              :}
+           | param paramListTail
+              {:
+                 ArrayList<Param> list = new ArrayList<Param>();
+                 list.add($1);
+                 list.addAll($2);
+                 RESULT = list;
+              :}
+           ;
+
+paramListTail ::= /* vazio */
+                 {:
+                    RESULT = new ArrayList<Param>();
+                 :}
+              | COMMA param paramListTail
+                 {:
+                    ArrayList<Param> list = new ArrayList<Param>();
+                    list.add($2);
+                    list.addAll($3);
+                    RESULT = list;
+                 :}
+              ;
+
+/*
+   Regra para um parâmetro.
+   Sintaxe: ID DOUBLECOLON type
+*/
+param ::= ID DOUBLECOLON type
+          {:
+             RESULT = new Param(((Symbol)$1).value, $3);
+          :}
+          ;
+
+/*
+   Regra para tipos de retorno de uma função (retType):
+   Pode ser especificado ou deixado vazio.
+   Se especificado, é: COLON type retTypeList
+*/
+retType ::= COLON type retTypeList
+           {:
+              ArrayList<Type> list = new ArrayList<Type>();
+              list.add($2);
+              list.addAll($3);
+              RESULT = list;
+           :}
+         | /* vazio */
+           {:
+              RESULT = new ArrayList<Type>();
+           :}
+         ;
+
+/*
+   Regra para a lista adicional de tipos de retorno (retTypeList).
+*/
+retTypeList ::= /* vazio */
+               {:
+                 RESULT = new ArrayList<Type>();
+               :}
+               | COMMA type retTypeList
+                {:
+                  ArrayList<Type> list = new ArrayList<Type>();
+                  list.add($2);
+                  list.addAll($3);
+                  RESULT = list;
+                :}
+                ;
+
+/*
+   5. Regra Block
+      Um bloco de comandos delimitado por chaves.
+      Sintaxe: LBRACE cmdList RBRACE
+*/
+block ::= LBRACE cmdList RBRACE
+         {:
+            RESULT = new Block($2);
+         :}
+         ;
+
+/*
+   Regra para a lista de comandos (cmdList) dentro de um bloco.
+   Pode ser vazia ou conter vários comandos.
+*/
+cmdList ::= /* vazio */
+             {:
+               RESULT = new ArrayList<Cmd>();
+             :}
+          | cmdList cmd
+             {:
+               ((ArrayList<Cmd>)$1).add($2);
+               RESULT = $1;
+             :}
+          ;
+
+/*
+   6. Regra Cmd
+      Define os comandos da linguagem.
+      As alternativas incluem:
+         - Comando if: IF LP exp RP block
+         - Comando iterate: ITERATE LP exp RP block
+         - Atribuição: lvalue '=' exp SEMICOLON
+         - Return: RETURN exp returnList SEMICOLON
+         - Print: PRINT exp SEMICOLON
+         - Read: READ lvalue SEMICOLON
+*/
+cmd ::= IF LP exp RP block
+         {:
+            RESULT = new IfCmd($3, $5);
+         :}
+      | ITERATE LP exp RP block
+         {:
+            RESULT = new IterateCmd($3, $5);
+         :}
+      | lvalue '=' exp SEMICOLON
+         {:
+            RESULT = new Attrib(((Symbol)$1).left, ((Symbol)$1).right, $1, $3);
+         :}
+      | RETURN exp returnList SEMICOLON
+         {:
+            ArrayList<Exp> exps = new ArrayList<Exp>();
+            exps.add($2);
+            exps.addAll($3);
+            RESULT = new ReturnCmd(exps);
+         :}
+      | PRINT exp SEMICOLON
+         {:
+            RESULT = new PrintCmd($2);
+         :}
+      | READ lvalue SEMICOLON
+         {:
+            RESULT = new ReadCmd($2);
+         :}
+      ;
+
+/*
+   Regra para a lista adicional de expressões (returnList) no comando return.
+   Se houver apenas um exp, a lista será vazia.
+*/
+returnList ::= /* vazio */
+                {:
+                  RESULT = new ArrayList<Exp>();
+                :}
+              | COMMA exp returnList
+                {:
+                  ArrayList<Exp> list = new ArrayList<Exp>();
+                  list.add($2);
+                  list.addAll($3);
+                  RESULT = list;
+                :}
+              ;
+
+/*
+   7. Regras de expressões (exp)
+   A gramática abaixo diferencia as operações lógicas, relacionais, aritméticas e unárias,
+   decompondo as expressões em níveis (exp, rexp, aexp, mexp, sexp, pexp).
+*/
+
+/* Expressões lógicas (exp):
+   exp ::= exp OR exp | exp AND exp | rexp
+*/
+exp ::= exp OR exp
+         {:
+            RESULT = new OrExp($1, $3);
+         :}
+      | exp AND exp
+         {:
+            RESULT = new AndExp($1, $3);
+         :}
+      | rexp
+         {:
+            RESULT = $1;
+         :}
+      ;
+
+/* Expressões relacionais (rexp):
+   rexp ::= aexp LT aexp | rexp EQEQ aexp | rexp NEQ aexp | aexp
+*/
+rexp ::= aexp LT aexp
+         {:
+            RESULT = new LessThanExp($1, $3);
+         :}
+      | rexp EQEQ aexp
+         {:
+            RESULT = new EqExp($1, $3);
+         :}
+      | rexp NEQ aexp
+         {:
+            RESULT = new NeqExp($1, $3);
+         :}
+      | aexp
+         {:
+            RESULT = $1;
+         :}
+      ;
+
+/* Expressões aritméticas (aexp):
+   aexp ::= aexp PLUS mexp | aexp MINUS mexp | mexp
+*/
+aexp ::= aexp PLUS mexp
+         {:
+            RESULT = new PlusExp($1, $3);
+         :}
+      | aexp MINUS mexp
+         {:
+            RESULT = new MinusExp($1, $3);
+         :}
+      | mexp
+         {:
+            RESULT = $1;
+         :}
+      ;
+
+/* Expressões de multiplicação/divisão (mexp):
+   mexp ::= mexp TIMES sexp | mexp DIVIDE sexp | sexp
+*/
+mexp ::= mexp TIMES sexp
+         {:
+            RESULT = new TimesExp($1, $3);
+         :}
+      | mexp DIVIDE sexp
+         {:
+            RESULT = new DivExp($1, $3);
+         :}
+      | sexp
+         {:
+            RESULT = $1;
+         :}
+      ;
+
+/* Expressões unárias (sexp):
+   sexp ::= NOT sexp | MINUS sexp | pexp
+*/
+sexp ::= NOT sexp
+         {:
+            RESULT = new NotExp($2);
+         :}
+      | MINUS sexp
+         {:
+            RESULT = new NegExp($2);
+         :}
+      | pexp
+         {:
+            RESULT = $1;
+         :}
+      ;
+
+/* Expressões primárias (pexp):
+   pexp ::= LP exp RP | lvalue | literals
+*/
+pexp ::= LP exp RP
+         {:
+            RESULT = $2;
+         :}
+      | lvalue
+         {:
+            RESULT = $1;
+         :}
+      | NUMBER
+         {:
+            RESULT = new IntLit(((Symbol)$1).left, ((Symbol)$1).right, (Integer)$1.value);
+         :}
+      | TRUE
+         {:
+            RESULT = new BoolLit(((Symbol)$1).left, ((Symbol)$1).right, true);
+         :}
+      | FALSE
+         {:
+            RESULT = new BoolLit(((Symbol)$1).left, ((Symbol)$1).right, false);
+         :}
+      ;
+
+/*
+   Regra lvalue:
+   lvalue ::= ID | lvalue LBRACK exp RBRACK | lvalue DOT ID
+   Representa acesso a variáveis, a elementos de vetores ou a campos de registros.
+*/
+lvalue ::= ID
+          {:
+             RESULT = new Var(((Symbol)$1).left, ((Symbol)$1).right, ((Symbol)$1).value);
+          :}
+       | lvalue LBRACK exp RBRACK
+          {:
+             RESULT = new ArrayAccess($1, $3);
+          :}
+       | lvalue DOT ID
+          {:
+             RESULT = new FieldAccess($1, ((Symbol)$3).value);
+          :}
+       ;

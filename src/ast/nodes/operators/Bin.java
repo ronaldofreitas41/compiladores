@@ -1,6 +1,8 @@
-package  nodes.operators;
+package  ast.nodes.operators;
 
-public abstract class Bin extends Op {
+import nodes.operators.Op;
+
+public abstract class Bin extends nodes.operators.Op {
       private Op left, right;
 
       public Bin(int line, int col, Op el, Op er){
