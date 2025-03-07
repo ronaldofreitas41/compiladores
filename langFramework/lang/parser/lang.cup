@@ -57,8 +57,8 @@ precedence left TIMES, DIVIDE, MOD;
 precedence right NOT;
 
 /* Non terminals */
-non terminal Exp expr;
-non terminal Exp prog;
+non terminal Exp expr; //Expressão
+non terminal Exp prog; // Num sei
 
 /* The grammar rules */
 
@@ -66,19 +66,15 @@ prog ::= expr:e {: RESULT = e; :}
        ;
 
 expr  ::= expr:e1 PLUS:s expr:e2 {: RESULT = new Plus(sleft, sright, e1, e2); :}
-       |  expr:e1 TIMES:s expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
-       |  expr:e1 MINUS:s expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
-       |  expr:e1 DIVIDE:s expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
-       |  expr:e1 MOD:s expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
-       |  expr:e1 EQUAL:s expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
-       |  expr:e1 DIFFERENT:s expr:e2 {: RESULT = new Different(sleft, sright, e1, e2); :}
-       |  expr:e1 LESS:s expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
-       |  expr:e1 GREATER:s expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
+                                          |  expr:e1 TIMES:s expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
+                                          |  expr:e1 MINUS:s expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
+                                          |  expr:e1 DIVIDE:s expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
+                                          |  expr:e1 MOD:s expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
+                                          |  expr:e1 EQUAL:s expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
+                                          |  expr:e1 DIFFERENT:s expr:e2 {: RESULT = new Different(sleft, sright, e1, e2); :}
+                                          |  expr:e1 LESS:s expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
+                                          |  expr:e1 GREATER:s expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
 
-       /*(???) DÚVIDA: As seguintes instâncias foram criadas extendendo Exp, está correto ou devo criar uma nova superclasse como Div extends BinOp ?*/
-       |  expr:e1 AND:n expr:e2 {: RESULT = new And(nleft, nright, e1, e2); :}
-       |  NOT:n expr:e1 {: RESULT = new Not(nleft, nright, e1); :}
-       /* ???????????????????? */
 
 
        |  LP expr:e RP {: RESULT = e; :}

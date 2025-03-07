@@ -10,6 +10,4 @@ public abstract class LType extends Node {
           super(line,col);
       }
 
-
-
 }
