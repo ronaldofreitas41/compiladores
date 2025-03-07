@@ -1,23 +1,10 @@
-/* 14/11/2024 - Calc lexer
- * Elton M. Cardoso
- * Example of a lexer for a simple claculator language.
- *
- * This lexer implementation contains Arrays as tokens.
- * The students are encouraged to argue why this is a bad ideia !
- *
- */
-package lang.parser;
-
+import mkSymbol;
 import java.util.ArrayList;
-import java_cup.runtime.Symbol;
-
-%%
 
 %public
 %function nextToken
-%type Symbol
-%class LangLexer
-
+%type Token
+%class Analisador
 
 %line
 %column
@@ -25,59 +12,97 @@ import java_cup.runtime.Symbol;
 %unicode
 
 %eofval{
-   return new Symbol(LangParserSym.EOF, yyline + 1, yycolumn + 1);
+   return mkSymbol(yyline, yycolumn, Mk.EOF);
 %eofval}
 
+%state ARR,
+
 %{
-       private ArrayList arr;
+    private ArrayList<Integer> arr;
 
-       private int toInt(String s){
-          try{
-              return Integer.parseInt(yytext());
-          }catch(NumberFormatException e){
-              System.out.println("erro de conversao: " + s + " para inteiro");
-              return 0;
-          }
-       }
+    private int toInt(String s) {
+      try {
+          return Integer.parseInt(s);
+      } catch (NumberFormatException e) {
+          System.out.println("Impossible error converting " + s + " to integer");
+          return 0;
+      }
+    }
 
-       private float toFloat(String s){
-          try{
-              return Float.parseFloat(yytext());
-          }catch(NumberFormatException e){
-              System.out.println("erro de conversao:  " + s + " para ponto flutuante");
-              return 0;
-          }
-       }
-
-       private Symbol mkSymbol(int symCode, Object obj){
-           return new Symbol(symCode, yyline + 1, yycolumn + 1, obj);
-       }
-
-       private Symbol mkSymbol(int symCode){
-           return mkSymbol(symCode,null);
-       }
+    private float toFloat(String s) {
+      try {
+        return Float.parseFloat(s);
+      } catch (NumberFormatException e) {
+        System.out.println("Impossible error converting " + s + " to integer");
+        return 0;
+      }
+    }
+    // adicionar a função de converter o ASCII para char
 
 %}
 
-
-identifier = [a-z]+
-number = [0-9]+
-white =  [ \n\t\r]+
-
+identifier = [a-z][a-zA-Z0-9_]*
+TYID = [A-Z][a-zA-Z0-9_]*
+intNumber = [0-9]+
+floatNumber = [0-9]+(\.[0-9]+)?
+white =  [ \n\t\r]+ | {comment} 
+comment = "{-" ~"-}"
+char = "'" [^'\\] "'" |"'" "\\" [ntbr\\\'\"] "'" | "'" "\\" [0-9]{3} "'"
 
 %%
+
 <YYINITIAL>{
+"--"  !([^]* \R [^]*) \R  {}
 
-"true"         { return mkSymbol(LangParserSym.TRUE, true);    }
-"false"        { return mkSymbol(LangParserSym.FALSE, false);  }
-"+"            { return mkSymbol(LangParserSym.PLUS);  }
-"*"            { return mkSymbol(LangParserSym.TIMES);  }
-{identifier}   { return mkSymbol(LangParserSym.ID,  yytext()); }
-{number}       { return mkSymbol(LangParserSym.NUMBER, toInt(yytext()));   }
+"true"         { return mkSymbol(yyline, yycolumn, Mk.TRUE); }
+"false"        { return mkSymbol(yyline, yycolumn, Mk.FALSE); }
 
+"data"         { return mkSymbol(yyline, yycolumn, Mk.DATA); }
+"if"           { return mkSymbol(yyline, yycolumn, Mk.IF); }
+"else"         { return mkSymbol(yyline, yycolumn, Mk.ELSE); }
+"read"         { return mkSymbol(yyline, yycolumn, Mk.READ); }
+"print"        { return mkSymbol(yyline, yycolumn, Mk.PRINT); }
+"return"       { return mkSymbol(yyline, yycolumn, Mk.RETURN); }
+"null"         { return mkSymbol(yyline, yycolumn, Mk.NULL); }
+"iterate"      { return mkSymbol(yyline, yycolumn, Mk.ITERATE); }
+
+"Int"           { return mkSymbol(yyline, yycolumn, Mk.INT); }
+"Float"         { return mkSymbol(yyline, yycolumn, Mk.FLOAT); }
+"Char"          { return mkSymbol(yyline, yycolumn, Mk.CHAR); }
+"Bool"          { return mkSymbol(yyline, yycolumn, Mk.BOOL); }
+
+"=="           { return mkSymbol(yyline, yycolumn, Mk.EQUAL); }
+"!="           { return mkSymbol(yyline, yycolumn, Mk.DIFFERENT); }
+"<="           { return mkSymbol(yyline, yycolumn, Mk.LESSEQUAL); }
+">="           { return mkSymbol(yyline, yycolumn, Mk.GREATEREQUAL); }
+"&&"           { return mkSymbol(yyline, yycolumn, Mk.AND); }
+"::"           { return mkSymbol(yyline, yycolumn, Mk.DOUBLECOLON); }
+"="            { return mkSymbol(yyline, yycolumn, Mk.ASSIGN); }
+"<"            { return mkSymbol(yyline, yycolumn, Mk.LESS); }
+">"            { return mkSymbol(yyline, yycolumn, Mk.GREATER); }
+"+"            { return mkSymbol(yyline, yycolumn, Mk.PLUS); }
+"-"            { return mkSymbol(yyline, yycolumn, Mk.MINUS); }
+"*"            { return mkSymbol(yyline, yycolumn, Mk.TIMES); }
+"/"            { return mkSymbol(yyline, yycolumn, Mk.DIVIDE); }
+"%"            { return mkSymbol(yyline, yycolumn, Mk.MOD); }
+"!"            { return mkSymbol(yyline, yycolumn, Mk.NOT); }
+"("            { return mkSymbol(yyline, yycolumn, Mk.OPENPARENTHESIS); }
+")"            { return mkSymbol(yyline, yycolumn, Mk.CLOSEPARENTHESIS); }
+"{"            { return mkSymbol(yyline, yycolumn, Mk.OPENBRACES); }
+"}"            { return mkSymbol(yyline, yycolumn, Mk.CLOSEBRACES); }
+";"            { return mkSymbol(yyline, yycolumn, Mk.SEMICOLON); }
+","            { return mkSymbol(yyline, yycolumn, Mk.COMMA); }
+":"            { return mkSymbol(yyline, yycolumn, Mk.COLON); }
+"."            { return mkSymbol(yyline, yycolumn, Mk.DOT); }
+"'"            { return mkSymbol(yyline, yycolumn, Mk.MARK); }
+"["            { return mkSymbol(yyline, yycolumn, Mk.LCOLCH); }
+"]"            { return mkSymbol(yyline, yycolumn, Mk.RCOLCH); }
+
+{identifier}   { return mkSymbol(yyline, yycolumn, Mk.IDENTIFIER, yytext()); }
+{TYID}         { return mkSymbol(yyline, yycolumn, Mk.TYID, yytext()); }
+{intNumber}    { return mkSymbol(yyline, yycolumn, Mk.INTNUMBER, toInt(yytext())); }
+{floatNumber}  { return mkSymbol(yyline, yycolumn, Mk.FLOATNUMBER, toFloat(yytext())); }
+{char}         { return mkSymbol(yyline, yycolumn, Mk.CHARACTER, yytext());}
 {white}        {/* While reading whites do nothing*/ }
 [^]            {/* Matches any char form the input*/
                 throw new Error("Illegal character <"+ yytext()+">"); }
-}
-
-
