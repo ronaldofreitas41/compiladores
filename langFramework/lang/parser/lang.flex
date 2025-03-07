@@ -35,7 +35,7 @@ import java_cup.runtime.Symbol;
           try{
               return Integer.parseInt(yytext());
           }catch(NumberFormatException e){
-              System.out.println("erro de conversao: " + s + " para inteiro");
+              System.out.println("Erro de conversao: " + s + " para inteiro");
               return 0;
           }
        }
@@ -44,9 +44,20 @@ import java_cup.runtime.Symbol;
           try{
               return Float.parseFloat(yytext());
           }catch(NumberFormatException e){
-              System.out.println("erro de conversao:  " + s + " para ponto flutuante");
+              System.out.println("Erro de conversao:  " + s + " para ponto flutuante.");
               return 0;
           }
+       }
+
+       private char ascIIToChar(String s) {
+           String octalValue = s.substring(2, s.length() - 1);
+
+           try {
+               int decimalValue = Integer.parseInt(octalValue, 8);
+               return (char)decimalValue;
+           } catch (NumberFormatException e) {
+               throw new Error("Erro na conversão de valor octal (" + s + ") para ASCII.");
+           }
        }
 
        private Symbol mkSymbol(int symCode, Object obj){
