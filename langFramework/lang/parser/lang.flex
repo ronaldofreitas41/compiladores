@@ -18,6 +18,7 @@ import java_cup.runtime.Symbol;
 %type Symbol
 %class LangLexer
 
+%state ARR
 
 %line
 %column
@@ -29,13 +30,13 @@ import java_cup.runtime.Symbol;
 %eofval}
 
 %{
-       private ArrayList arr;
+       private ArrayList<Integer> arr;
 
        private int toInt(String s){
           try{
               return Integer.parseInt(yytext());
           }catch(NumberFormatException e){
-              System.out.println("Erro de conversao: " + s + " para inteiro");
+              System.out.println("Erro de conversão: " + s + " para inteiro");
               return 0;
           }
        }
@@ -44,7 +45,7 @@ import java_cup.runtime.Symbol;
           try{
               return Float.parseFloat(yytext());
           }catch(NumberFormatException e){
-              System.out.println("Erro de conversao:  " + s + " para ponto flutuante.");
+              System.out.println("Erro de conversão: " + s + " para ponto flutuante.");
               return 0;
           }
        }
@@ -80,9 +81,9 @@ escape        = "'\\b'" | "'\\n'" | "'\\t'" | "'\\r'"
 ascII         = "'\\[0-9]{1,3}'"
 comment       = "{-" ~"-}"
 
-
 %%
-<YYINITIAL>{
+
+<YYINITIAL> {
 
     /* Tipos de Dados */
     "Int"            { return mkSymbol(LangParserSym.INT); }
@@ -160,7 +161,7 @@ comment       = "{-" ~"-}"
 /* Construção do array */
 <ARR> {
     {integer}       { arr.add(Integer.parseInt(yytext())); }
-    {whitespace}    { /* Ignore whitespaces in ARR state */ }
+    {whitespace}    { /* N/A */ }
     "]"             { yybegin(YYINITIAL); return mkSymbol(LangParserSym.ARR, arr); }
 }
 
