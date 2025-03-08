@@ -1,7 +1,5 @@
 package lang.ast.types;
 
-
-import lang.ast.NodeVisitor;
 import lang.ast.Node;
 
 public abstract class LType extends Node {
