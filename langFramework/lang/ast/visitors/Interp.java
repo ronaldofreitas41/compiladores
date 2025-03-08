@@ -36,6 +36,7 @@ public class Interp extends NodeVisitor {
 
     public Interp() {
         stk = new Stack<Object>();
+        varTable = new HashMap<>(); // Inicializando a tabela de variáveis
     }
 
     public Object getStackTop() {
@@ -43,8 +44,20 @@ public class Interp extends NodeVisitor {
     }
 
     public void visit(Attrib c) {
-        //Não sei o que por aqui
+        // Avalia a expressão do lado direito e empilha o resultado
+        c.getExp().accept(this);
+        Object value = stk.pop(); // Pega o valor da expressão
+
+        // Avalia o lado esquerdo (lhs) para obter o nome da variável
+        if (c.getLhs() instanceof Id) {
+            Id var = (Id) c.getLhs();
+            String varName = var.getName();
+            varTable.put(varName, value); // Armazena a variável na tabela
+        } else {
+            throw new RuntimeException("Atribuição inválida! O lado esquerdo não é uma variável.");
+        }
     }
+
 
     public Object getVarValue(String id) {
         return varTable.get(id);
