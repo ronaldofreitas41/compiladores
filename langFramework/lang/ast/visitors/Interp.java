@@ -50,68 +50,78 @@ public class Interp extends NodeVisitor {
         return varTable.get(id);
     }
 
-
     //Operação de &&
     public void visit(And e) {
         e.getLeft().accept(this);
-        boolean left = (Boolean) stk.pop();
+        Object leftObj = stk.pop();
 
         e.getRight().accept(this);
-        boolean right = (Boolean) stk.pop();
+        Object rightObj = stk.pop();
 
-        boolean r = left && right;
+        // Verifica e converte para Boolean
+        boolean left = (leftObj instanceof Boolean) ? (Boolean) leftObj : false;
+        boolean right = (rightObj instanceof Boolean) ? (Boolean) rightObj : false;
 
-        stk.push(r);
+        stk.push(Boolean.valueOf(left && right));
     }
 
     // Verificação se dois elementos são diferentes
     public void visit(Diff e) {
         e.getLeft().accept(this);
-        boolean left = (Boolean) stk.pop();
+        Object leftObj = stk.pop();
 
         e.getRight().accept(this);
-        boolean right = (Boolean) stk.pop();
+        Object rightObj = stk.pop();
 
-        boolean r = (left != right);
+        // Usa equals() para comparar corretamente objetos de diferentes tipos
+        boolean r = !leftObj.equals(rightObj);
 
-        stk.push(r);
+        stk.push(Boolean.valueOf(r));
     }
 
     //Verificação se dois elementos são iguais
     public void visit(Equal e) {
         e.getLeft().accept(this);
-        boolean left = (Boolean) stk.pop();
+        Object leftObj = stk.pop();
 
         e.getRight().accept(this);
-        boolean right = (Boolean) stk.pop();
+        Object rightObj = stk.pop();
 
-        boolean r = (left == right);
+        boolean r = leftObj.equals(rightObj);
 
-        stk.push(r);
+        stk.push(Boolean.valueOf(r));
     }
-
 
     //Operação de Maior que
     public void visit(Greater e) {
         e.getLeft().accept(this);
-        float left = (Float) stk.pop();
+        Object leftObj = stk.pop();
 
         e.getRight().accept(this);
-        float right = (Float) stk.pop();
+        Object rightObj = stk.pop();
 
-        stk.push(left > right);
+        // Converte para Float se necessário
+        float left = (leftObj instanceof Integer) ? ((Integer) leftObj).floatValue() : (Float) leftObj;
+        float right = (rightObj instanceof Integer) ? ((Integer) rightObj).floatValue() : (Float) rightObj;
+
+        stk.push(Boolean.valueOf(left > right));
     }
 
     //Operação de Menor que
     public void visit(Less e) {
         e.getLeft().accept(this);
-        float left = (Float) stk.pop();
+        Object leftObj = stk.pop();
 
         e.getRight().accept(this);
-        float right = (Float) stk.pop();
+        Object rightObj = stk.pop();
 
-        stk.push(left < right);
+        // Converte para Float caso seja Integer
+        float left = (leftObj instanceof Integer) ? ((Integer) leftObj).floatValue() : (Float) leftObj;
+        float right = (rightObj instanceof Integer) ? ((Integer) rightObj).floatValue() : (Float) rightObj;
+
+        stk.push(Boolean.valueOf(left < right));
     }
+
 
     //Operação de Resto
     public void visit(Mod e) {
@@ -137,32 +147,44 @@ public class Interp extends NodeVisitor {
     public void visit(Sub e) {
         e.getLeft().accept(this);
         e.getRight().accept(this);
-        Integer r = (Integer) stk.pop() - (Integer) stk.pop();
-        stk.push(r);
+
+        Integer right = (Integer) stk.pop();
+        Integer left = (Integer) stk.pop();  
+
+        stk.push(left - right);
     }
 
     //Operação de Soma
     public void visit(Plus e) {
         e.getLeft().accept(this);
         e.getRight().accept(this);
-        Integer r = (Integer) stk.pop() + (Integer) stk.pop();
-        stk.push(r);
+
+        Integer right = (Integer) stk.pop();
+        Integer left = (Integer) stk.pop();
+
+        stk.push(left + right);
     }
 
     //Operação de Multiplicação
     public void visit(Times e) {
         e.getLeft().accept(this);
         e.getRight().accept(this);
-        Integer r = (Integer) stk.pop() * (Integer) stk.pop();
-        stk.push(r);
+
+        Integer right = (Integer) stk.pop();
+        Integer left = (Integer) stk.pop();
+
+        stk.push(left * right);
     }
 
     //Operação de Divisão
     public void visit(Div e) {
         e.getLeft().accept(this);
         e.getRight().accept(this);
-        Integer r = (Integer) stk.pop() / (Integer) stk.pop();
-        stk.push(r);
+
+        Integer right = (Integer) stk.pop();
+        Integer left = (Integer) stk.pop();
+
+        stk.push(left / right);
     }
 
     public void visit(Var e) {
