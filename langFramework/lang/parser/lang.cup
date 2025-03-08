@@ -1,10 +1,3 @@
-/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
-
-/*
- * Ronaldo Luiz de Freitas Santos 20.1.8113
- * Bernardo Lucas de Araujo Dias 20.1.8011
- */
-
 package lang.parser;
 
 import java_cup.runtime.*;
@@ -16,45 +9,39 @@ import java.util.ArrayList;
 
 class LangParser;
 parser code {:
-    // Conecta o parser ao lexer
     LangLexer s;
-    public LangParser(LangLexer s){ this.s=s; }
+    public LangParser(LangLexer s){ this.s = s; }
 :}
 
-init with {:               :};
+init with {: :};
 scan with {: return s.nextToken(); :};
 
-/* Definição dos tokens */
-terminal PLUS, MINUS, TIMES, DIVIDE, MOD; // Operadores aritméticos
-terminal EQUAL, DIFFERENT, LESS, GREATER; // Operadores relacionais
-terminal AND, NOT, DCOLON, ASSIGN;  // &&, !, :, =
-terminal LP, RP, LBRACE, CBRACE; // (, ), {, }
-terminal SEMICOLON, COMMA, COLON, DOT, QUOTATION_MARKS;
-terminal Integer INT;
-terminal Float FLOAT;
-terminal String ID, CHAR;
-terminal Boolean BOOL, TRUE, FALSE, NULL;
-terminal IDENTIFIER, TYPE_ID;
-terminal ESCAPE, ASCII;
-terminal ARR;
+/* Tokens */
+terminal PLUS, MINUS, TIMES, DIVIDE, MOD;
+terminal EQUAL, DIFFERENT, LESS, GREATER;
+terminal AND, NOT, DCOLON, ASSIGN;
+terminal LP, RP, LBRACE, RBRACE, LBRACK, RBRACK; // Tokens para colchetes
+terminal SEMICOLON, COMMA, COLON, DOT;
+terminal INT, FLOAT, CHAR;
+terminal TRUE, FALSE, NULL;
+terminal ID, TYPE_ID;
 terminal IF, ELSE, ITERATE, RETURN, READ, PRINT, NEW;
 
 /* Não-terminais */
 non terminal Prog prog;
-non terminal Exp expr;
-non terminal Type type;
-non terminal Cmd cmd;
+non terminal Data data, data_list;
+non terminal Func func, func_list;
+non terminal Decl decl, decl_list;
+non terminal Type type, btype, type_list;
+non terminal Params params;
 non terminal StmtBlock stmtBlock;
 non terminal LoopCond loopCond;
-non terminal Params params;
-non terminal Decl decl;
-non terminal Func func;
-non terminal Data data;
 non terminal LValue lvalue;
 non terminal Exps exps;
+non terminal Block block;
+non terminal Cmd cmd;
 
-/* Precedência e associatividade dos operadores */
-precedence left OR;
+/* Precedências */
 precedence left AND;
 precedence left EQUAL, DIFFERENT;
 precedence left LESS, GREATER;
@@ -62,65 +49,89 @@ precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
 precedence right NOT;
 
-/* Regras da gramática */
+/* Regras */
+prog ::= data_list:dl func_list:fl {: RESULT = new Program(dl, fl); :};
 
-// Definição do programa
-prog ::= data:d func:f  {: RESULT = new Program(d, f); :};
+data_list ::= data:d {: RESULT = new DataList(d); :}
+            | data_list:dl data:d {: RESULT = dl.add(d); :};
 
-// Definição de tipos (data)
-data ::= TYPE_ID t LBRACE decl:s CBRACE {: RESULT = new DataType(t, s); :};
+data ::= TYPE_ID:t LBRACE decl_list:dl RBRACE {: RESULT = new DataType(t, dl); :};
 
-// Declaração de variáveis
-decl ::= ID DCOLON type:t SEMICOLON {: RESULT = new Decl(sleft, sright, ID, t); :};
+decl_list ::= decl:d {: RESULT = new DeclList(d); :}
+            | decl_list:dl decl:d {: RESULT = dl.add(d); :};
 
-// Definição de funções
-func ::= ID LP [params] RP COLON type block {: RESULT = new Function(sleft, sright, ID, params, type, block); :};
+decl ::= ID:i DCOLON type:t SEMICOLON {: RESULT = new Decl(sleft, sright, i, t); :};
 
-// Parâmetros das funções
-params ::= ID DCOLON type:t { COMMA ID DCOLON type } {: RESULT = new Params(sleft, sright, t); :};
+func_list ::= func:f {: RESULT = new FuncList(f); :}
+            | func_list:fl func:f {: RESULT = fl.add(f); :};
 
-// Bloco de comandos
-stmtBlock ::= LBRACE cmd:s CBRACE {: RESULT = new StmtBlock(sleft, sright, s); :};
+func ::= ID:i LP params:p RP [COLON type_list:tl] block:b {: RESULT = new Function(sleft, sright, i, p, tl, b); :};
 
-// Comandos
-cmd ::= IF LP expr:e RP stmtBlock:s ELSE stmtBlock:s2 {: RESULT = new IfElse(sleft, sright, e, s, s2); :} // if-else
-    | ITERATE LP loopCond:c RP stmtBlock:s {: RESULT = new Iterate(sleft, sright, c, s); :} // loop
-    | READ lvalue:l SEMICOLON {: RESULT = new Read(sleft, sright, l); :} // leitura
-    | PRINT expr:e SEMICOLON {: RESULT = new Print(sleft, sright, e); :} // impressão
-    | RETURN expr:e { COMMA expr } SEMICOLON {: RESULT = new Return(sleft, sright, e); :} // retorno
-    | lvalue:l ASSIGN expr:e SEMICOLON {: RESULT = new Assign(sleft, sright, l, e); :} // atribuição
-    | ID LP exps RP SEMICOLON {: RESULT = new FunctionCall(sleft, sright, ID, exps); :} // chamada de função
-    ;
+params ::= param_list:pl {: RESULT = new Params(pl); :};
 
-// Condição do loop
-loopCond ::= ID COLON expr:e {: RESULT = new LoopCond(sleft, sright, ID, e); :}
-    | expr:e {: RESULT = new LoopCond(sleft, sright, e); :} ;
+param_list ::= param:p {: RESULT = new ParamList(p); :}
+             | param_list:pl COMMA param:p {: RESULT = pl.add(p); :};
 
-// Expressões
-expr ::= expr:e1 PLUS expr:e2 {: RESULT = new Plus(sleft, sright, e1, e2); :}
-    | expr:e1 MINUS expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
-    | expr:e1 TIMES expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
-    | expr:e1 DIVIDE expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
-    | expr:e1 MOD expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
-    | expr:e1 EQUAL expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
-    | expr:e1 DIFFERENT expr:e2 {: RESULT = new Diff(sleft, sright, e1, e2); :}
-    | expr:e1 LESS expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
-    | expr:e1 GREATER expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
-    | LP expr:e RP {: RESULT = e; :}
-    | INT:n {: RESULT = new IntLit(sleft, sright, n); :}
-    | FLOAT:n2 {: RESULT = new FloatLit(sleft, sright, n2); :}
-    | TRUE:t {: RESULT = new BoolLit(sleft, sright, t); :}
-    | FALSE:f {: RESULT = new BoolLit(sleft, sright, f); :}
-    | NULL:n {: RESULT = new NullLit(sleft, sright, n); :}
-    | CHAR:c {: RESULT = new CharLit(sleft, sright, c); :}
-    | ID:i {: RESULT = new Var(sleft, sright, i); :}
-    | NEW type:t LBRACE expr:e RBRACE {: RESULT = new NewInstance(sleft, sright, t, e); :} // instanciação de objetos
-    ;
+param ::= ID:i DCOLON type:t {: RESULT = new Param(sleft, sright, i, t); :};
 
-// Valores à esquerda das expressões
-lvalue ::= ID {: RESULT = new LValue(sleft, sright, ID); :}
-    | lvalue LBRACE expr RBRACE {: RESULT = new ArrayAccess(sleft, sright, lvalue, expr); :}
-    | lvalue DOT ID {: RESULT = new FieldAccess(sleft, sright, lvalue, ID); :} ;
+type_list ::= type:t {: RESULT = new TypeList(t); :}
+            | type_list:tl COMMA type:t {: RESULT = tl.add(t); :};
 
-// Lista de expressões
-exps ::= expr:e { COMMA expr } {: RESULT = new Exps(sleft, sright, e); :};
+type ::= type:t LBRACK RBRACK {: RESULT = new ArrayType(t); :}
+        | btype:b {: RESULT = b; :};
+
+btype ::= TYPE_ID:t {: RESULT = new TypeID(t); :}
+        | INT {: RESULT = new IntType(); :}
+        | CHAR {: RESULT = new CharType(); :}
+        | BOOL {: RESULT = new BoolType(); :}
+        | FLOAT {: RESULT = new FloatType(); :};
+
+block ::= LBRACE stmtBlock:sb RBRACE {: RESULT = sb; :};
+
+stmtBlock ::= block:b {: RESULT = b; :}
+            | cmd:c {: RESULT = new StmtBlock(c); :};
+
+cmd ::= IF LP expr:e RP stmtBlock:s {: RESULT = new If(sleft, sright, e, s); :}
+      | IF LP expr:e RP stmtBlock:s1 ELSE stmtBlock:s2 {: RESULT = new IfElse(sleft, sright, e, s1, s2); :}
+      | ITERATE LP loopCond:lc RP stmtBlock:s {: RESULT = new Iterate(sleft, sright, lc, s); :}
+      | READ lvalue:lv SEMICOLON {: RESULT = new Read(sleft, sright, lv); :}
+      | PRINT expr:e SEMICOLON {: RESULT = new Print(sleft, sright, e); :}
+      | RETURN exps:e SEMICOLON {: RESULT = new Return(sleft, sright, e); :}
+      | lvalue:lv ASSIGN expr:e SEMICOLON {: RESULT = new Assign(sleft, sright, lv, e); :}
+      | ID:i LP exps:e RP [LESS lvalue_list:lvs GREATER] SEMICOLON {: RESULT = new FunctionCall(sleft, sright, i, e, lvs); :};
+
+loopCond ::= ID:i COLON expr:e {: RESULT = new LoopID(sleft, sright, i, e); :}
+           | expr:e {: RESULT = new LoopExpr(e); :};
+
+lvalue_list ::= lvalue:lv {: RESULT = new LValueList(lv); :}
+              | lvalue_list:lvs COMMA lvalue:lv {: RESULT = lvs.add(lv); :};
+
+expr ::= expr:e1 AND expr:e2 {: RESULT = new And(sleft, sright, e1, e2); :}
+       | expr:e1 EQUAL expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
+       | expr:e1 DIFFERENT expr:e2 {: RESULT = new Diff(sleft, sright, e1, e2); :}
+       | expr:e1 LESS expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
+       | expr:e1 GREATER expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
+       | expr:e1 PLUS expr:e2 {: RESULT = new Plus(sleft, sright, e1, e2); :}
+       | expr:e1 MINUS expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
+       | expr:e1 TIMES expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
+       | expr:e1 DIVIDE expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
+       | expr:e1 MOD expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
+       | NOT expr:e {: RESULT = new Not(sleft, sright, e); :}
+       | MINUS expr:e {: RESULT = new Neg(sleft, sright, e); :}
+       | LP expr:e RP {: RESULT = e; :}
+       | INT:n {: RESULT = new IntLit(n); :}
+       | FLOAT:n {: RESULT = new FloatLit(n); :}
+       | TRUE {: RESULT = new BoolLit(true); :}
+       | FALSE {: RESULT = new BoolLit(false); :}
+       | NULL {: RESULT = new NullLit(); :}
+       | CHAR:c {: RESULT = new CharLit(c); :}
+       | lvalue:lv {: RESULT = lv; :}
+       | NEW type:t LBRACK expr:e RBRACK {: RESULT = new NewArray(sleft, sright, t, e); :}
+       | ID:i LP exps:e RP {: RESULT = new Call(sleft, sright, i, e); :};
+
+lvalue ::= ID:i {: RESULT = new LValueID(i); :}
+         | lvalue:lv LBRACK expr:e RBRACK {: RESULT = new LValueArray(lv, e); :}
+         | lvalue:lv DOT ID:i {: RESULT = new LValueField(lv, i); :};
+
+exps ::= expr:e {: RESULT = new ExprList(e); :}
+       | exps:es COMMA expr:e {: RESULT = es.add(e); :};

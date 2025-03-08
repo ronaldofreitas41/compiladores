@@ -5,6 +5,8 @@
  * This lexer implementation contains Arrays as tokens.
  * The students are encouraged to argue why this is a bad ideia !
  *
+ *  Ronaldo Luiz de Freitas Santos
+ *  Bernardo Lucas de Araujo Dias
  */
 package lang.parser;
 
@@ -99,42 +101,44 @@ comment       = "{-" ~"-}"
     {comment}        { /* N/A */ }
 
     /* Palavras reservadas */
-    "if"             { return mkSymbol(LangParserSym.IF); }
-    "else"           { return mkSymbol(LangParserSym.ELSE); }
-    "data"           { return mkSymbol(LangParserSym.DATA); }
-    "null"           { return mkSymbol(LangParserSym.NULL); }
+    "if"             { return mkSymbol(LangParserSym.IF);      }
+    "else"           { return mkSymbol(LangParserSym.ELSE);    }
+    "data"           { return mkSymbol(LangParserSym.DATA);    }
+    "null"           { return mkSymbol(LangParserSym.NULL);    }
     "iterate"        { return mkSymbol(LangParserSym.ITERATE); }
-    "read"           { return mkSymbol(LangParserSym.READ); }
-    "print"          { return mkSymbol(LangParserSym.PRINT); }
-    "return"         { return mkSymbol(LangParserSym.RETURN); }
+    "read"           { return mkSymbol(LangParserSym.READ);    }
+    "print"          { return mkSymbol(LangParserSym.PRINT);   }
+    "return"         { return mkSymbol(LangParserSym.RETURN);  }
 
     /* Operadores */
-    "=="             { return mkSymbol(LangParserSym.EQUAL); }
-    "!="             { return mkSymbol(LangParserSym.DIFFERENT); }
-    "<="             { return mkSymbol(LangParserSym.LESS_EQUAL); }
-    ">="             { return mkSymbol(LangParserSym.GREATER_EQUAL); }
-    "&&"             { return mkSymbol(LangParserSym.AND); }
-    "::"             { return mkSymbol(LangParserSym.DOUBLE_COLON); }
-    "="              { return mkSymbol(LangParserSym.ASSIGN); }
-    "<"              { return mkSymbol(LangParserSym.LESS); }
-    ">"              { return mkSymbol(LangParserSym.GREATER); }
-    "+"              { return mkSymbol(LangParserSym.PLUS); }
-    "-"              { return mkSymbol(LangParserSym.MINUS); }
-    "*"              { return mkSymbol(LangParserSym.TIMES); }
-    "/"              { return mkSymbol(LangParserSym.DIVIDE); }
-    "%"              { return mkSymbol(LangParserSym.MOD); }
-    "!"              { return mkSymbol(LangParserSym.NOT); }
+    "=="             { return mkSymbol(LangParserSym.EQUAL);          }
+    "!="             { return mkSymbol(LangParserSym.DIFFERENT);      }
+    "<="             { return mkSymbol(LangParserSym.LESS_EQUAL);     }
+    ">="             { return mkSymbol(LangParserSym.GREATER_EQUAL);  }
+    "&&"             { return mkSymbol(LangParserSym.AND);            }
+    "::"             { return mkSymbol(LangParserSym.DOUBLE_COLON);   }
+    "="              { return mkSymbol(LangParserSym.ASSIGN);         }
+    "<"              { return mkSymbol(LangParserSym.LESS);           }
+    ">"              { return mkSymbol(LangParserSym.GREATER);        }
+    "+"              { return mkSymbol(LangParserSym.PLUS);           }
+    "-"              { return mkSymbol(LangParserSym.MINUS);          }
+    "*"              { return mkSymbol(LangParserSym.TIMES);          }
+    "/"              { return mkSymbol(LangParserSym.DIVIDE);         }
+    "%"              { return mkSymbol(LangParserSym.MOD);            }
+    "!"              { return mkSymbol(LangParserSym.NOT);            }
 
     /* Caracteres de pontuação */
-    "("              { return mkSymbol(LangParserSym.OPEN_PARENTHESIS); }
+    "("              { return mkSymbol(LangParserSym.OPEN_PARENTHESIS);  }
     ")"              { return mkSymbol(LangParserSym.CLOSE_PARENTHESIS); }
-    "{"              { return mkSymbol(LangParserSym.OPEN_BRACES); }
-    "}"              { return mkSymbol(LangParserSym.CLOSE_BRACES); }
-    ";"              { return mkSymbol(LangParserSym.SEMICOLON); }
-    ","              { return mkSymbol(LangParserSym.COMMA); }
-    ":"              { return mkSymbol(LangParserSym.COLON); }
-    "."              { return mkSymbol(LangParserSym.DOT); }
-    "'"              { return mkSymbol(LangParserSym.QUOTATION_MARKS); }
+    "{"              { return mkSymbol(LangParserSym.OPEN_BRACES);       }
+    "}"              { return mkSymbol(LangParserSym.CLOSE_BRACES);      }
+    "["              { return mkSymbol(LangParserSym.OPEN_BRACKET);      }
+    "]"              { return mkSymbol(LangParserSym.CLOSE_BRACKET);     }
+    ";"              { return mkSymbol(LangParserSym.SEMICOLON);         }
+    ","              { return mkSymbol(LangParserSym.COMMA);             }
+    ":"              { return mkSymbol(LangParserSym.COLON);             }
+    "."              { return mkSymbol(LangParserSym.DOT);               }
+    "'"              { return mkSymbol(LangParserSym.QUOTATION_MARKS);   }
 
     /* Identificadores */
     {identifier}     { return mkSymbol(LangParserSym.IDENTIFIER, yytext()); }
@@ -151,18 +155,8 @@ comment       = "{-" ~"-}"
     /* Espaço em branco */
     {whitespace}     { /* N/A */ }
 
-    /* Indicador de array */
-    "["              { yybegin(ARR); arr = new ArrayList<>(); }
-
     /* ERRO */
     [^]              { throw new Error("Illegal character <" + yytext() + "> at line " + (yyline + 1) + ", column " + (yycolumn + 1)); }
-}
-
-/* Construção do array */
-<ARR> {
-    {integer}       { arr.add(Integer.parseInt(yytext())); }
-    {whitespace}    { /* N/A */ }
-    "]"             { yybegin(YYINITIAL); return mkSymbol(LangParserSym.ARR, arr); }
 }
 
 
