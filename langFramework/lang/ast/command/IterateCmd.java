@@ -5,22 +5,19 @@ import lang.ast.Node;
 import lang.ast.expr.Exp;
 import lang.ast.NodeVisitor;
 
-public class If extends Node{
+public class IterateCmd extends Node{
 
    private Exp cond;
-   private Node thn;
-   private Node els;
-   
-   public If(int l, int c, Exp e, Node ths, Node els){
+   private Node body;
+
+   public IterateCmd(int l, int c, Exp e, Node body){
        super(l,c);
        cond = e;
-       this.thn = thn;
-       this.els = els;
+       this.body = body;
    }
 
    public Exp getCond(){return cond;}
-   public Node getThn(){return thn;}
-   public Node getEls(){return els;}
+   public Node getBody(){return body;}
 
    public void accept(NodeVisitor v){v.visit(this);}
 

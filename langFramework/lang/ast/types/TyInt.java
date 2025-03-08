@@ -1,9 +1,6 @@
 package lang.ast.types;
 
-
 import lang.ast.NodeVisitor;
-
-
 
 public class TyInt extends LType {
 

@@ -1,11 +1,10 @@
-package calc.nodes;
+package lang.ast;
 
-import calc.nodes.dotutils.DotFile;
-import calc.nodes.environment.Env;
+
 import java.util.ArrayList;
-import calc.nodes.decl.FunDef;
+import lang.ast.decl.FunDef;
 
-public class Program extends CNode{
+public class Program extends Node{
 
    private ArrayList<FunDef> funcs;
 
@@ -17,6 +16,6 @@ public class Program extends CNode{
 
    public ArrayList<FunDef> getFuncs(){return funcs;}
 
-   public void accept(CalcVisitor v){v.visit(this);}
+   public void accept(NodeVisitor v){v.visit(this);}
 
 }
