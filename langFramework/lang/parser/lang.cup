@@ -35,23 +35,6 @@ terminal IF, ELSE, ITERATE, RETURN, READ, PRINT, NEW;        // Comandos
 /* Não-terminais */
 non terminal Prog prog;
 non terminal Exp expr;
-non terminal Type type;
-non terminal Cmd cmd;
-non terminal StmtBlock stmtBlock;
-non terminal LoopCond loopCond;
-non terminal Params params;
-non terminal Decl decl;
-non terminal Func func;
-non terminal Data data;
-non terminal LValue lvalue;
-non terminal Exps exps;
-non terminal Block block;
-non terminal ParamList param_list;
-non terminal Param param;
-non terminal TypeList type_list;
-non terminal DataList data_list; // Adicionando a declaração do não-terminal data_list
-non terminal FuncList func_list; // Adicionando a declaração do não-terminal func_list
-non terminal DeclList decl_list; // Adicionando a declaração do não-terminal decl_list
 
 /* Precedência e associatividade dos operadores */
 precedence left AND;
@@ -63,26 +46,24 @@ precedence right NOT;
 
 /* Regras da gramática */
 
-
-
 // Expressões
-expr ::= expr:e1 AND expr:e2 {: RESULT = new And(sleft, sright, e1, e2); :}
-       | expr:e1 EQUAL expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
-       | expr:e1 DIFFERENT expr:e2 {: RESULT = new Diff(sleft, sright, e1, e2); :}
-       | expr:e1 LESS expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
-       | expr:e1 GREATER expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
-       | expr:e1 PLUS expr:e2 {: RESULT = new Plus(sleft, sright, e1, e2); :}
-       | expr:e1 MINUS expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
-       | expr:e1 TIMES expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
-       | expr:e1 DIVIDE expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
-       | expr:e1 MOD expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
-       | NOT expr:e {: RESULT = new Not(sleft, sright, e); :}
-       | MINUS expr:e {: RESULT = new Neg(sleft, sright, e); :}
-       | LP expr:e RP {: RESULT = e; :}
-       | INT:n {: RESULT = new IntLit(n); :}
-       | FLOAT:n {: RESULT = new FloatLit(n); :}
-       | TRUE {: RESULT = new BoolLit(true); :}
-       | FALSE {: RESULT = new BoolLit(false); :}
-       | NULL {: RESULT = new NullLit(); :}
-       | CHAR:c {: RESULT = new CharLit(c); :}
+expr ::= expr:e1 AND expr:e2       {: RESULT = new And(sleft, sright, e1, e2);     :}
+       | expr:e1 EQUAL expr:e2     {: RESULT = new Equal(sleft, sright, e1, e2);   :}
+       | expr:e1 DIFFERENT expr:e2 {: RESULT = new Diff(sleft, sright, e1, e2);    :}
+       | expr:e1 LESS expr:e2      {: RESULT = new Less(sleft, sright, e1, e2);    :}
+       | expr:e1 GREATER expr:e2   {: RESULT = new Greater(sleft, sright, e1, e2); :}
+       | expr:e1 PLUS expr:e2      {: RESULT = new Plus(sleft, sright, e1, e2);    :}
+       | expr:e1 MINUS expr:e2     {: RESULT = new Sub(sleft, sright, e1, e2);     :}
+       | expr:e1 TIMES expr:e2     {: RESULT = new Times(sleft, sright, e1, e2);   :}
+       | expr:e1 DIVIDE expr:e2    {: RESULT = new Div(sleft, sright, e1, e2);     :}
+       | expr:e1 MOD expr:e2       {: RESULT = new Mod(sleft, sright, e1, e2);     :}
+       | NOT expr:e                {: RESULT = new Not(sleft, sright, e);          :}
+       | MINUS expr:e              {: RESULT = new Neg(sleft, sright, e);          :}
+       | LP expr:e RP              {: RESULT = e;                                  :}
+       | INT:n                     {: RESULT = new IntLit(n);                      :}
+       | FLOAT:n                   {: RESULT = new FloatLit(n);                    :}
+       | TRUE                      {: RESULT = new BoolLit(true);                  :}
+       | FALSE                     {: RESULT = new BoolLit(false);                 :}
+       | NULL                      {: RESULT = new NullLit();                      :}
+       | CHAR:c                    {: RESULT = new CharLit(c);                     :}
        ;
