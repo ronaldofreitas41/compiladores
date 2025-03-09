@@ -19,6 +19,7 @@ scan with {: return s.nextToken(); :};
 
 /* Definição dos tokens*/                                    /* Descrição dos tokens    */
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD;                    // Operadores aritméticos ('+', '-', '*', '/', '%')
+terminal TYBOOL, TYFLOAT, TYINT, TYID, TYNULL;               // Tipos de dados (bool, float, int, id, null)
 terminal EQUAL, DIFFERENT, LESS, GREATER;                    // Operadores relacionais ('==', '!=', '<', '>')
 terminal AND, NOT, DCOLON, ASSIGN;                           // Operadores lógicos e de atribuição ('&&', '!', ':', '=')
 terminal LP, RP, LBRACE, RBRACE, LBRACK, RBRACK;             // '(', ')', '{', '}', '[', ']'
@@ -34,7 +35,8 @@ terminal IF, ELSE, ITERATE, RETURN, READ, PRINT, NEW;        // Comandos
 
 /* Não-terminais */
 non terminal Prog prog;
-non terminal Exp expr;
+non terminal Exp expr; 
+non terminal LType type;
 
 /* Precedência e associatividade dos operadores */
 precedence left AND;
@@ -45,6 +47,23 @@ precedence left TIMES, DIVIDE, MOD;
 precedence right NOT;
 
 /* Regras da gramática */
+
+// Programa
+
+// Data
+
+// Fun Def
+
+// Decl
+
+// Type
+type ::= TYBOOL:s                    {: RESULT = new TyInt(sleft, sright);     :}
+       | TYINT:s                     {: RESULT = new FloatType(sleft, sright); :}
+       | TYID:s                      {: RESULT = new BoolType(sleft, sright);  :}
+       | TYNULL:s                    {: RESULT = new CharType(sleft, sright);  :}
+       | TYFLOAT:s                   {: RESULT = new ArrayType(sleft, sright); :}
+       ;
+// Comandos
 
 // Expressões
 expr ::= expr:e1 AND expr:e2       {: RESULT = new And(sleft, sright, e1, e2);     :}
