@@ -132,8 +132,8 @@ comment       = "{-" ~"-}"
     ")"              { return mkSymbol(LangParserSym.CLOSE_PARENTHESIS); }
     "{"              { return mkSymbol(LangParserSym.OPEN_BRACES);       }
     "}"              { return mkSymbol(LangParserSym.CLOSE_BRACES);      }
-    "["              { return mkSymbol(LangParserSym.OPEN_BRACKET);      }
-    "]"              { return mkSymbol(LangParserSym.CLOSE_BRACKET);     }
+    "["              { return mkSymbol(LangParserSym.LBRACKET);          }
+    "]"              { return mkSymbol(LangParserSym.RBRACKET);          }
     ";"              { return mkSymbol(LangParserSym.SEMICOLON);         }
     ","              { return mkSymbol(LangParserSym.COMMA);             }
     ":"              { return mkSymbol(LangParserSym.COLON);             }

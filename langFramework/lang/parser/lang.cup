@@ -2,6 +2,7 @@ package lang.parser;
 
 import java_cup.runtime.*;
 import lang.ast.*;
+import lang.ast.decl.*;
 import lang.ast.command.*;
 import lang.ast.expr.*;
 import lang.ast.types.*;
@@ -19,10 +20,11 @@ scan with {: return s.nextToken(); :};
 
 /* Definição dos tokens*/                                    /* Descrição dos tokens    */
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD;                    // Operadores aritméticos ('+', '-', '*', '/', '%')
-terminal TYBOOL, TYFLOAT, TYINT, TYID, TYNULL;               // Tipos de dados (bool, float, int, id, null)
+terminal TYBOOL, TYFLOAT, TYINT, TYID, TYNULL,TYCHAR;               // Tipos de dados (bool, float, int, id, null)
 terminal EQUAL, DIFFERENT, LESS, GREATER;                    // Operadores relacionais ('==', '!=', '<', '>')
 terminal AND, NOT, DCOLON, ASSIGN;                           // Operadores lógicos e de atribuição ('&&', '!', ':', '=')
-terminal LP, RP, LBRACE, RBRACE, LBRACK, RBRACK;             // '(', ')', '{', '}', '[', ']'
+terminal LP, RP, LBRACE, RBRACE, LBRACK, RBRACK;             // '(', ')', '{', '}'
+terminal LBRACKET, RBRACKET;                                 // '[' e ']'
 terminal SEMICOLON, COMMA, COLON, DOT, QUOTATION_MARKS;      // ';', ',', ':', '.', '"'
 terminal Integer INT;                                        // Número inteiro
 terminal Float FLOAT;                                        // Número real
@@ -37,6 +39,11 @@ terminal IF, ELSE, ITERATE, RETURN, READ, PRINT, NEW;        // Comandos
 non terminal Prog prog;
 non terminal Exp expr; 
 non terminal LType type;
+non terminal LType bType;
+non terminal Cmd cmd;
+non terminal Node node, stmt, stmtList;
+non terminal ArrayList<Cmd> cmdList;
+non terminal ArrayList<Decl> declList;
 
 /* Precedência e associatividade dos operadores */
 precedence left AND;
@@ -56,13 +63,28 @@ precedence right NOT;
 
 // Decl
 
-// Type
-type ::= TYBOOL:s                    {: RESULT = new TyInt(sleft, sright);     :}
-       | TYINT:s                     {: RESULT = new FloatType(sleft, sright); :}
-       | TYID:s                      {: RESULT = new BoolType(sleft, sright);  :}
-       | TYNULL:s                    {: RESULT = new CharType(sleft, sright);  :}
-       | TYFLOAT:s                   {: RESULT = new ArrayType(sleft, sright); :}
+// Type não sei a maneira correta de implementar esse
+type ::= bType:t LBRACKET RBRACKET  {: RESULT = new ArrayType(t);  :}
+      | bType:t          {: RESULT = new BasicType(t); :}
+     ;
+
+// Comandos
+
+
+// Bind
+bind ::= LP ID:id DCOLON bType:t RP {: RESULT = new Bind(tleft,tright,ty,new Var(vleft, vright, v)); :};
+
+// statements
+
+// bType
+bType ::= TYBOOL:s                   {: RESULT = new TyBool(sleft, sright);     :}
+       | TYINT:s                     {: RESULT = new TyInt(sleft, sright); :}
+       | TYID:s                      {: RESULT = new TyId(sleft, sright);  :}
+       | TYCHAR:s                    {: RESULT = new TyChar(sleft, sright);  :}
+       | TYNULL:s                    {: RESULT = new TyNull(sleft, sright);  :}
+       | TYFLOAT:s                   {: RESULT = new TyFloat(sleft, sright); :}
        ;
+
 // Comandos
 
 // Expressões
@@ -81,8 +103,8 @@ expr ::= expr:e1 AND expr:e2       {: RESULT = new And(sleft, sright, e1, e2);  
        | LP expr:e RP              {: RESULT = e;                                  :}
        | INT:n                     {: RESULT = new IntLit(n);                      :}
        | FLOAT:n                   {: RESULT = new FloatLit(n);                    :}
-       | TRUE                      {: RESULT = new BoolLit(true);                  :}
-       | FALSE                     {: RESULT = new BoolLit(false);                 :}
-       | NULL                      {: RESULT = new NullLit();                      :}
+       | TRUE:n                    {: RESULT = new BoolLit(true);                  :}
+       | FALSE:n                   {: RESULT = new BoolLit(false);                 :}
+       | NULL:n                    {: RESULT = new NullLit();                      :}
        | CHAR:c                    {: RESULT = new CharLit(c);                     :}
        ;
