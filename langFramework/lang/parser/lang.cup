@@ -20,20 +20,21 @@ scan with {: return s.nextToken(); :};
 
 /* Definição dos tokens*/                                    /* Descrição dos tokens    */
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD;                    // Operadores aritméticos ('+', '-', '*', '/', '%')
-terminal TYBOOL, TYFLOAT, TYINT, TYID, TYNULL,TYCHAR;               // Tipos de dados (bool, float, int, id, null)
+terminal TYBOOL, TYFLOAT, TYINT, TYID, TYNULL,TYCHAR;        // Tipos de dados (bool, float, int, id, null)
 terminal EQUAL, DIFFERENT, LESS, GREATER;                    // Operadores relacionais ('==', '!=', '<', '>')
 terminal AND, NOT, DCOLON, ASSIGN;                           // Operadores lógicos e de atribuição ('&&', '!', ':', '=')
-terminal LP, RP, LBRACE, RBRACE, LBRACK, RBRACK;             // '(', ')', '{', '}'
+terminal LP, RP, LBRACE, RBRACE;                             // '(', ')', '{', '}'
 terminal LBRACKET, RBRACKET;                                 // '[' e ']'
-terminal SEMICOLON, COMMA, COLON, DOT, QUOTATION_MARKS;      // ';', ',', ':', '.', '"'
+terminal SEMICOLON, COMMA, COLON;                            // ';', ',', ':', '.',
+//terminal QUOTATION_MARKS, DOT;                             // '"', '.'
 terminal Integer INT;                                        // Número inteiro
 terminal Float FLOAT;                                        // Número real
 terminal String ID, CHAR;                                    // Identificador, caractere
-terminal Boolean BOOL, TRUE, FALSE, NULL;                    // Booleano, true, false, null
-terminal IDENTIFIER, TYPE_ID;                                // Identificador, tipo
-terminal ESCAPE, ASCII;                                      // Caracteres de escape, ASCII
-terminal ARR;                                                // Array
-terminal IF, ELSE, ITERATE, RETURN, READ, PRINT, NEW;        // Comandos
+terminal Boolean TRUE, FALSE, NULL;                          // Booleano, true, false
+//terminal Boolean BOOL;                                     // Booleano, true, false, null
+//terminal ESCAPE, ASCII;                                    // Caracteres de escape, ASCII
+//terminal ARR, NEW;                                         // Array, new
+terminal IF, ELSE, ITERATE, RETURN, READ, PRINT;             // Comandos
 terminal DATA;        
 
 /* Não-terminais */
@@ -43,21 +44,20 @@ non terminal ArrayList<Data> dataList;
 non terminal FunDef func;
 non terminal ArrayList<FunDef> funcList;
 non terminal Exp expr;
+non terminal ArrayList<Exp> expList;
 non terminal LType type;
 non terminal ArrayList<LType> typeList;
 non terminal LType bType;
 non terminal Cmd cmd;
 non terminal ArrayList<Cmd> cmdList;
-non terminal Node node;
 non terminal Decl decl;
 non terminal ArrayList<Decl> declList;
-non terminal Exp program;
 non terminal Block block;
 non terminal StmtBlock stmtBlock;
 non terminal LValue lvalue;
 non terminal Exps exps;
-non terminal LValueList lvalue_list;
 non terminal LoopCond loopCond;
+non terminal Bind param;
 non terminal ArrayList<Bind> paramList;
 non terminal Bind bind;
 non terminal ArrayList<Bind> bindList;
@@ -123,8 +123,12 @@ declList ::= declList:dl decl:d {: dl.add(d); RESULT = dl; :}
 
 // Type 
 type ::= type:t LBRACKET RBRACKET   {:                                  :}
-      | bType:b                     {: RESULT = b                       :}
+      | bType:b                     {: RESULT = b;                       :}
      ;
+
+// Type List
+typeList ::= typeList:tl COMMA type:t {: tl.add(t); RESULT = tl; :}
+       |  type:t {: List<Type> l = new ArrayList<Type>(); l.add(t); RESULT = l; :};
 
 // bType
 bType ::= TYBOOL:s                   {: RESULT = new TyBool(sleft, sright);  :}
@@ -135,25 +139,26 @@ bType ::= TYBOOL:s                   {: RESULT = new TyBool(sleft, sright);  :}
        | TYFLOAT:s                   {: RESULT = new TyFloat(sleft, sright); :}
        ;
 
+// Statements
+stmtBlock ::= block:bk {: RESULT = new StmtBlock(bkleft,bkright,bk.getCommands()); :}
+       | cmd:c {: RESULT = new StmtBlock(cleft,cright,Arrays.asList(c)); :};
+
+
 // Comandos
-
-// statements
-
-
-// Comandos
-cmd ::= IF LP expr:e RP stmtBlock:s                     {: RESULT = new If(sleft, sright, e, s); :}
-      | IF LP expr:e RP stmtBlock:s1 ELSE stmtBlock:s2  {: RESULT = new IfElse(sleft, sright, e, s1, s2); :}
-      | ITERATE LP loopCond:lc RP stmtBlock:s           {: RESULT = new Iterate(sleft, sright, lc, s); :}
-      | READ lvalue:lv SEMICOLON                        {: RESULT = new Read(sleft, sright, lv); :}
-      | PRINT expr:e SEMICOLON                          {: RESULT = new Print(sleft, sright, e); :}
-      | RETURN exps:e SEMICOLON                         {: RESULT = new Return(sleft, sright, e); :}
-      | lvalue:lv ASSIGN expr:e SEMICOLON               {: RESULT = new Assign(sleft, sright, lv, e); :};
+cmd ::= IF:i LP expr:e RP stmtBlock:s                     {: RESULT = new If(sleft, sright, e, s);          :}
+      | IF LP expr:e RP stmtBlock:s1 ELSE stmtBlock:s2    {: RESULT = new IfElse(sleft, sright, e, s1, s2); :}
+      | ITERATE LP loopCond:lc RP stmtBlock:s             {: RESULT = new Iterate(sleft, sright, lc, s);    :}
+      | READ lvalue:lv SEMICOLON                          {: RESULT = new Read(sleft, sright, lv);          :}
+      | PRINT expr:e SEMICOLON                            {: RESULT = new Print(sleft, sright, e);          :}
+      | RETURN exps:e SEMICOLON                           {: RESULT = new Return(sleft, sright, e);         :}
+      | lvalue:lv ASSIGN expr:e SEMICOLON                 {: RESULT = new Assign(sleft, sright, lv, e);     :}
+      | ID:i LP expList:el RP SEMICOLON                   {: RESULT = new FuncCall(i, el);                  :};
 
 // Command List
 cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
        | {: RESULT = new ArrayList<Cmd>(); :};
 
-// Definição de bloco(Incompleto) Falta ajustar o {cmd}
+// Block
 block ::= LBRACE cmdList RBRACE {: RESULT = new Block(sleft, sright, cmd); :};
 
 // stmtBlock
@@ -182,3 +187,7 @@ expr ::= expr:e1 AND expr:e2       {: RESULT = new And(sleft, sright, e1, e2);  
        | NULL:n                    {: RESULT = new NullLit();                      :}
        | CHAR:c                    {: RESULT = new CharLit(c);                     :}
        ;
+
+//Exp List
+expList ::= expList:el COMMA expr:e {: el.add(e); RESULT = el; :}
+          | expr:e {: ArrayList<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
