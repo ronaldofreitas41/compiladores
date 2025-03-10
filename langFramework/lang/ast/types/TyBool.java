@@ -10,6 +10,10 @@ public class TyBool extends LType {
           super(line,col);
       }
 
+        public String getTypeName(){
+            return "Bool";
+        }
+      
      public void accept(NodeVisitor v){v.visit(this);}
 
 }

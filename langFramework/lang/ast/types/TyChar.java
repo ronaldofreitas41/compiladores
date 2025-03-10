@@ -7,6 +7,10 @@ public class TyChar extends LType {
         super(line, col);
     }
 
+    public String getTypeName() {
+        return "Char";
+    }
+
     public void accept(NodeVisitor v) {
         v.visit(this);
     }

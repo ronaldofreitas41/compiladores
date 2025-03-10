@@ -145,13 +145,13 @@ stmtBlock ::= block:bk {: RESULT = new StmtBlock(bkleft,bkright,bk.getCommands()
 
 
 // Comandos
-cmd ::= IF:i LP expr:e RP stmtBlock:s                     {: RESULT = new If(sleft, sright, e, s);          :}
-      | IF LP expr:e RP stmtBlock:s1 ELSE stmtBlock:s2    {: RESULT = new IfElse(sleft, sright, e, s1, s2); :}
-      | ITERATE LP loopCond:lc RP stmtBlock:s             {: RESULT = new Iterate(sleft, sright, lc, s);    :}
-      | READ lvalue:lv SEMICOLON                          {: RESULT = new Read(sleft, sright, lv);          :}
-      | PRINT expr:e SEMICOLON                            {: RESULT = new Print(sleft, sright, e);          :}
-      | RETURN exps:e SEMICOLON                           {: RESULT = new Return(sleft, sright, e);         :}
-      | lvalue:lv ASSIGN expr:e SEMICOLON                 {: RESULT = new Assign(sleft, sright, lv, e);     :}
+cmd ::= IF:c LP expr:e RP stmtBlock:s                       {: RESULT = new If(cleft, cright, e, s);          :}
+      | IF:c LP expr:e RP stmtBlock:s1 ELSE stmtBlock:s2    {: RESULT = new IfElse(cleft, cright, e, s1, s2); :}
+      | ITERATE:c LP loopCond:lc RP stmtBlock:s             {: RESULT = new Iterate(cleft, cright, lc, s);    :}
+      | READ:c lvalue:lv SEMICOLON                          {: RESULT = new Read(cleft, cright, lv);          :}
+      | PRINT:c expr:e SEMICOLON                            {: RESULT = new Print(cleft, cright, e);          :}
+      | RETURN:c exps:e SEMICOLON                           {: RESULT = new Return(cleft, cright, e);         :}
+      | lvalue:lv ASSIGN:c expr:e SEMICOLON                 {: RESULT = new Assign(cleft, cright, lv, e);     :}
       | ID:i LP expList:el RP SEMICOLON                   {: RESULT = new FuncCall(i, el);                  :};
 
 // Command List
@@ -167,25 +167,25 @@ stmtBlock ::= block:b {: RESULT = b; :}
 
 
 // Expressões
-expr ::= expr:e1 AND expr:e2       {: RESULT = new And(sleft, sright, e1, e2);     :}
-       | expr:e1 EQUAL expr:e2     {: RESULT = new Equal(sleft, sright, e1, e2);   :}
-       | expr:e1 DIFFERENT expr:e2 {: RESULT = new Diff(sleft, sright, e1, e2);    :}
-       | expr:e1 LESS expr:e2      {: RESULT = new Less(sleft, sright, e1, e2);    :}
-       | expr:e1 GREATER expr:e2   {: RESULT = new Greater(sleft, sright, e1, e2); :}
-       | expr:e1 PLUS expr:e2      {: RESULT = new Plus(sleft, sright, e1, e2);    :}
-       | expr:e1 MINUS expr:e2     {: RESULT = new Sub(sleft, sright, e1, e2);     :}
-       | expr:e1 TIMES expr:e2     {: RESULT = new Times(sleft, sright, e1, e2);   :}
-       | expr:e1 DIVIDE expr:e2    {: RESULT = new Div(sleft, sright, e1, e2);     :}
-       | expr:e1 MOD expr:e2       {: RESULT = new Mod(sleft, sright, e1, e2);     :}
-       | NOT expr:e                {: RESULT = new Not(sleft, sright, e);          :}
-       | MINUS expr:e              {: RESULT = new Neg(sleft, sright, e);          :}
-       | LP expr:e RP              {: RESULT = e;                                  :}
-       | INT:n                     {: RESULT = new IntLit(n);                      :}
-       | FLOAT:n                   {: RESULT = new FloatLit(n);                    :}
-       | TRUE:n                    {: RESULT = new BoolLit(true);                  :}
-       | FALSE:n                   {: RESULT = new BoolLit(false);                 :}
-       | NULL:n                    {: RESULT = new NullLit();                      :}
-       | CHAR:c                    {: RESULT = new CharLit(c);                     :}
+expr ::= expr:e1 AND:s expr:e2        {: RESULT = new And(sleft, sright, e1, e2);     :}
+       | expr:e1 EQUAL:s expr:e2      {: RESULT = new Equal(sleft, sright, e1, e2);   :}
+       | expr:e1 DIFFERENT:s expr:e2  {: RESULT = new Diff(sleft, sright, e1, e2);    :}
+       | expr:e1 LESS:s expr:e2       {: RESULT = new Less(sleft, sright, e1, e2);    :}
+       | expr:e1 GREATER:s expr:e2    {: RESULT = new Greater(sleft, sright, e1, e2); :}
+       | expr:e1 PLUS:s expr:e2       {: RESULT = new Plus(sleft, sright, e1, e2);    :}
+       | expr:e1 MINUS:s expr:e2      {: RESULT = new Sub(sleft, sright, e1, e2);     :}
+       | expr:e1 TIMES:s expr:e2      {: RESULT = new Times(sleft, sright, e1, e2);   :}
+       | expr:e1 DIVIDE:s expr:e2     {: RESULT = new Div(sleft, sright, e1, e2);     :}
+       | expr:e1 MOD:s expr:e2        {: RESULT = new Mod(mleft, mright, e1, e2);     :}
+       | NOT:n expr:e                 {: RESULT = new Not(nleft, nright, e);          :}
+       | MINUS expr:e                 {: RESULT = new Neg(sleft, sright, e);          :}
+       | LP expr:e RP                 {: RESULT = e;                                  :}
+       | INT:n                        {: RESULT = new IntLit(n);                      :}
+       | FLOAT:n                      {: RESULT = new FloatLit(n);                    :}
+       | TRUE:n                       {: RESULT = new BoolLit(true);                  :}
+       | FALSE:n                      {: RESULT = new BoolLit(false);                 :}
+       | NULL:n                       {: RESULT = new NullLit();                      :}
+       | CHAR:c                       {: RESULT = new CharLit(c);                     :}
        ;
 
 //Exp List

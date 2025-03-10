@@ -7,6 +7,10 @@ public class TyNull extends LType {
         super(line, col);
     }
 
+    public String getTypeName() {
+        return "Null";
+    }
+
     public void accept(NodeVisitor v) {
         v.visit(this);
     }

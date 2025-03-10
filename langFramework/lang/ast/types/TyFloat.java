@@ -7,6 +7,10 @@ public class TyFloat extends LType {
         super(line, col);
     }
 
+    public String getTypeName() {
+        return "Float";
+    }
+
     public void accept(NodeVisitor v) {
         v.visit(this);
     }

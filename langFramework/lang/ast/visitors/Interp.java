@@ -507,23 +507,7 @@ public class Interp extends NodeVisitor {
         throw new UnsupportedOperationException("Unimplemented method 'visit'");
     }
 
-    @Override
-    public void visit(TyChar t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
 
-    @Override
-    public void visit(TyId t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
-
-    @Override
-    public void visit(TyNull t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
 
     @Override
     public void visit(Program p) {
