@@ -10,5 +10,4 @@ public class TyChar extends LType {
     public void accept(NodeVisitor v) {
         v.visit(this);
     }
-
 }

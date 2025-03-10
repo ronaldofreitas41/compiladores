@@ -9,5 +9,6 @@ public class And extends BinOp {
 
     }
 
+    @Override
     public void accept(NodeVisitor v){v.visit(this);}
 }
