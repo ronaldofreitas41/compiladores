@@ -32,11 +32,11 @@ import lang.ast.Program;
 public class Interp extends NodeVisitor {
 
     public Stack<Object> stk;
-    private Map<String, Object> varTable; // Tabela de variáveis
+    private Map<String, Object> varTable;
 
     public Interp() {
         stk = new Stack<Object>();
-        varTable = new HashMap<>(); // Inicializando a tabela de variáveis
+        varTable = new HashMap<>(); 
     }
 
     public Object getStackTop() {
@@ -219,8 +219,27 @@ public class Interp extends NodeVisitor {
     }
 
     public void visit(TyBool t) {
+        stk.push(t.getTypeName());
     }
+
     public void visit(TyInt t) {
+        stk.push(t.getTypeName());
+    }
+
+    public void visit(TyChar t) {
+        stk.push(t.getTypeName());
+    }
+
+    public void visit(TyFloat t) {
+        stk.push(t.getTypeName());
+    }
+
+    public void visit(TyId t) {
+        stk.push(t.getTypeName());
+    }
+
+    public void visit(TyNull t) {
+        stk.push(t.getTypeName());
     }
 
     @Override
