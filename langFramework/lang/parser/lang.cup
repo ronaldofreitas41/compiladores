@@ -44,13 +44,14 @@ non terminal FunDef func;
 non terminal ArrayList<FunDef> funcList;
 non terminal Exp expr;
 non terminal LType type;
+non terminal ArrayList<LType> typeList;
 non terminal LType bType;
 non terminal Cmd cmd;
-non terminal Node node, stmt, stmtList;
-non terminal Decl decl;
-non terminal Exp program;
 non terminal ArrayList<Cmd> cmdList;
+non terminal Node node;
+non terminal Decl decl;
 non terminal ArrayList<Decl> declList;
+non terminal Exp program;
 non terminal Block block;
 non terminal StmtBlock stmtBlock;
 non terminal LValue lvalue;
@@ -105,17 +106,25 @@ bind ::= type:ty COLON:t ID:v {: RESULT = new Bind(tleft,tright,ty,new Var(vleft
 // Param
 param ::= ID:i DCOLON type:t {: RESULT = new Param(sleft, sright, i, t); :};
 
-//Declaração de Função(não sei se está correta)
-fncDecl ::= ID:fn LP paramList:l RP COLON type:t block:b  {: :}
-         ;
+//Ta dando erro aqui
+//func ::= ID:i LP paramList:params RP COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, params, tl, b); :}
+//       |  ID:i LP paramList:params RP block:b {: RESULT = new FunDef(ileft, iright, i, params, null, b); :}
+//       |  ID:i LP RP COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, null, tl, b); :}
+//       |  ID:i LP RP block:b {: RESULT = new FunDef(ileft, iright, i, null, null, b); :};
+
  
 // Decl
 decl ::= ID:i DCOLON type:t SEMICOLON {: RESULT = new Decl(tleft, tright, i, t); :};
 
-// Type não sei a maneira correta de implementar esse
-//type ::= type:t LBRACKET RBRACKET   {: RESULT =                              :}
-//      | bType:b                     {: RESULT =                              :}
-//     ;
+// DeclList
+declList ::= declList:dl decl:d {: dl.add(d); RESULT = dl; :}
+        |  {: RESULT = new ArrayList<Decl>(); :}
+        ;
+
+// Type 
+type ::= type:t LBRACKET RBRACKET   {:                                  :}
+      | bType:b                     {: RESULT = b                       :}
+     ;
 
 // bType
 bType ::= TYBOOL:s                   {: RESULT = new TyBool(sleft, sright);  :}
@@ -140,9 +149,12 @@ cmd ::= IF LP expr:e RP stmtBlock:s                     {: RESULT = new If(sleft
       | RETURN exps:e SEMICOLON                         {: RESULT = new Return(sleft, sright, e); :}
       | lvalue:lv ASSIGN expr:e SEMICOLON               {: RESULT = new Assign(sleft, sright, lv, e); :};
 
+// Command List
+cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
+       | {: RESULT = new ArrayList<Cmd>(); :};
 
 // Definição de bloco(Incompleto) Falta ajustar o {cmd}
-block ::= LBRACE cmd RBRACE {: RESULT = new Block(sleft, sright, cmd); :};
+block ::= LBRACE cmdList RBRACE {: RESULT = new Block(sleft, sright, cmd); :};
 
 // stmtBlock
 stmtBlock ::= block:b {: RESULT = b; :}
