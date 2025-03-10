@@ -29,8 +29,8 @@ public class FCall extends Exp {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("FCall{").append("functionName='").append(functionName).append('\'')
-          .append(", arguments=").append(arguments).append('}');
+        sb.append("FCall{").append("functionName='").append(this.funcName).append('\'')
+          .append(", arguments=").append(this.args).append('}');
         return sb.toString();
     }
 }

@@ -1,18 +1,19 @@
 package lang.ast.expr;
 
 import lang.ast.NodeVisitor;
+import lang.ast.types.LType;
 
 public class NewArray extends Exp {
-    private Type type;
+    private LType type;
     private Exp sizeExp;
 
-    public NewArray(int line, int col, Type type, Exp sizeExp) {
+    public NewArray(int line, int col, LType type, Exp sizeExp) {
         super(line, col);
         this.type = type;
         this.sizeExp = sizeExp;
     }
 
-    public Type getType() {
+    public LType getType() {
         return type;
     }
 
@@ -21,7 +22,7 @@ public class NewArray extends Exp {
     }
 
     @Override
-    public void accept(Visitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 

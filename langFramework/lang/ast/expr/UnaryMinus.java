@@ -15,7 +15,7 @@ public class UnaryMinus extends Exp {
     }
 
     @Override
-    public void accept(Visitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
     

@@ -14,7 +14,7 @@ public abstract class BinOp extends Exp {
 
       @Override
       public String toString() {
-            return getClass().getSimpleName() + "(" + left + ", " + right + ")";
+            return getClass().getSimpleName() + "(" + this.left + ", " + this.rigth + ")";
       }
 }
 

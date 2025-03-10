@@ -1,25 +1,34 @@
 package lang.ast.command;
 
-import lang.ast.Node;
-import lang.ast.NodeVisitor;
 import lang.ast.expr.Exp;
+import lang.ast.expr.LValue;
+import lang.ast.NodeVisitor;
 
-public class Attrib extends Node {
+public class Attrib extends Cmd {
+    private LValue lvalue;
+    private Exp exp;
 
-      private Exp lhs;
-      private Exp e;
-      
-      public Attrib(int line, int col, Exp lhs, Exp e){
-           super(line,col);
-           this.lhs = lhs;
-           this.e = e;
-      }
+    public Attrib(int line, int column, LValue lvalue, Exp exp) {
+        super(line, column);
+        this.lvalue = lvalue;
+        this.exp = exp;
+    }
 
-      public Exp getExp(){return e;}
-      public Exp getLhs(){return lhs;}
+    public LValue getLValue() {
+        return lvalue;
+    }
 
-      public void accept(NodeVisitor v){v.visit(this);}
+    public Exp getExp() {
+        return exp;
+    }
 
-
+    @Override
+    public void accept(NodeVisitor v) {
+        v.visit(this);
+    }
+    
+    @Override
+    public String toString() {
+        return "AtbrCmd(" + lvalue + ", " + exp + ")";
+    }
 }
-
