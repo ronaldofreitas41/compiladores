@@ -34,16 +34,33 @@ terminal IDENTIFIER, TYPE_ID;                                // Identificador, t
 terminal ESCAPE, ASCII;                                      // Caracteres de escape, ASCII
 terminal ARR;                                                // Array
 terminal IF, ELSE, ITERATE, RETURN, READ, PRINT, NEW;        // Comandos
+terminal DATA;        
 
 /* Não-terminais */
 non terminal Prog prog;
-non terminal Exp expr; 
+non terminal Data data;
+non terminal ArrayList<Data> dataList;
+non terminal FunDef func;
+non terminal ArrayList<FunDef> funcList;
+non terminal Exp expr;
 non terminal LType type;
 non terminal LType bType;
 non terminal Cmd cmd;
 non terminal Node node, stmt, stmtList;
+non terminal Decl decl;
+non terminal Exp program;
 non terminal ArrayList<Cmd> cmdList;
 non terminal ArrayList<Decl> declList;
+non terminal Block block;
+non terminal StmtBlock stmtBlock;
+non terminal LValue lvalue;
+non terminal Exps exps;
+non terminal LValueList lvalue_list;
+non terminal LoopCond loopCond;
+non terminal ArrayList<Bind> paramList;
+non terminal Bind bind;
+non terminal ArrayList<Bind> bindList;
+
 
 /* Precedência e associatividade dos operadores */
 precedence left AND;
@@ -56,36 +73,81 @@ precedence right NOT;
 /* Regras da gramática */
 
 // Programa
+prog ::= dataList:d funcList:f {: RESULT = new Program(dleft,dright,d,f); :};
+
+//Data List
+dataList ::= dataList:dl data:d {: dl.add(d); RESULT = dl; :}
+       |  {: RESULT = new ArrayList<Data>(); :}
+       ;
 
 // Data
+data ::= DATA:dt TYID:id LBRACE decl:d RBRACE {: RESULT = new Data(sleft, sright, id, d); :};
 
-// Fun Def
+//Function List
+funcList ::= funcList:fl func:f {: fl.add(f); RESULT = fl; :}
+       |  {: RESULT = new ArrayList<FunDef>(); :};
 
-// Decl
+// ParamList
+paramList ::= bindList:l {: RESULT = l;:}
+        |                {: RESULT =  new ArrayList<Bind>(); :}
+        ;
 
-// Type não sei a maneira correta de implementar esse
-type ::= bType:t LBRACKET RBRACKET  {: RESULT = new ArrayType(t);  :}
-      | bType:t          {: RESULT = new BasicType(t); :}
+// BindList
+bindList ::= bind:b  COMMA bindList:bl {: bl.add(b); RESULT = bl;:}
+          |  bind:b                  {: ArrayList<Bind> arr = new ArrayList<Bind>();
+                                        arr.add(b);
+                                        RESULT = arr; :}
+          ;
+// Bind
+bind ::= type:ty COLON:t ID:v {: RESULT = new Bind(tleft,tright,ty,new Var(vleft, vright, v)); :}
      ;
 
-// Comandos
+// Param
+param ::= ID:i DCOLON type:t {: RESULT = new Param(sleft, sright, i, t); :};
 
+//Declaração de Função(não sei se está correta)
+fncDecl ::= ID:fn LP paramList:l RP COLON type:t block:b  {: :}
+         ;
+ 
+// Decl
+decl ::= ID:i DCOLON type:t SEMICOLON {: RESULT = new Decl(tleft, tright, i, t); :};
 
-// Bind
-bind ::= LP ID:id DCOLON bType:t RP {: RESULT = new Bind(tleft,tright,ty,new Var(vleft, vright, v)); :};
-
-// statements
+// Type não sei a maneira correta de implementar esse
+//type ::= type:t LBRACKET RBRACKET   {: RESULT =                              :}
+//      | bType:b                     {: RESULT =                              :}
+//     ;
 
 // bType
-bType ::= TYBOOL:s                   {: RESULT = new TyBool(sleft, sright);     :}
-       | TYINT:s                     {: RESULT = new TyInt(sleft, sright); :}
-       | TYID:s                      {: RESULT = new TyId(sleft, sright);  :}
+bType ::= TYBOOL:s                   {: RESULT = new TyBool(sleft, sright);  :}
+       | TYINT:s                     {: RESULT = new TyInt(sleft, sright);   :}
+       | TYID:s                      {: RESULT = new TyId(sleft, sright);    :}
        | TYCHAR:s                    {: RESULT = new TyChar(sleft, sright);  :}
        | TYNULL:s                    {: RESULT = new TyNull(sleft, sright);  :}
        | TYFLOAT:s                   {: RESULT = new TyFloat(sleft, sright); :}
        ;
 
 // Comandos
+
+// statements
+
+
+// Comandos
+cmd ::= IF LP expr:e RP stmtBlock:s                     {: RESULT = new If(sleft, sright, e, s); :}
+      | IF LP expr:e RP stmtBlock:s1 ELSE stmtBlock:s2  {: RESULT = new IfElse(sleft, sright, e, s1, s2); :}
+      | ITERATE LP loopCond:lc RP stmtBlock:s           {: RESULT = new Iterate(sleft, sright, lc, s); :}
+      | READ lvalue:lv SEMICOLON                        {: RESULT = new Read(sleft, sright, lv); :}
+      | PRINT expr:e SEMICOLON                          {: RESULT = new Print(sleft, sright, e); :}
+      | RETURN exps:e SEMICOLON                         {: RESULT = new Return(sleft, sright, e); :}
+      | lvalue:lv ASSIGN expr:e SEMICOLON               {: RESULT = new Assign(sleft, sright, lv, e); :};
+
+
+// Definição de bloco(Incompleto) Falta ajustar o {cmd}
+block ::= LBRACE cmd RBRACE {: RESULT = new Block(sleft, sright, cmd); :};
+
+// stmtBlock
+stmtBlock ::= block:b {: RESULT = b; :}
+            | cmd:c   {: RESULT = c; :};
+
 
 // Expressões
 expr ::= expr:e1 AND expr:e2       {: RESULT = new And(sleft, sright, e1, e2);     :}
