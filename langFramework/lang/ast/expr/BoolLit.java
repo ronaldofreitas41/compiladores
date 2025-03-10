@@ -11,5 +11,12 @@ public class BoolLit extends Exp{
       }
 
       public boolean getValue(){ return value;}
+
+      @Override
       public void accept(NodeVisitor v){v.visit(this);}
+
+      @Override
+      public String toString() {
+            return "BoolLit{" + "value=" + value + "}";
+      }
 }

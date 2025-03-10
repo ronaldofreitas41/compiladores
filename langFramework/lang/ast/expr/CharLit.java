@@ -14,8 +14,13 @@ public class CharLit extends Exp {
         return value;
     }
 
+    @Override
     public void accept(NodeVisitor v) {
         v.visit(this);
     }
 
+    @Override
+    public String toString() {
+        return "CharLit{" + "value=" + value + "}";
+    }
 }

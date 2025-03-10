@@ -12,9 +12,11 @@ public class IntLit extends Exp{
 
       public int getValue(){ return value;}
 
-
-
+      @Override
       public void accept(NodeVisitor v){v.visit(this);}
 
-
+      @Override
+      public String toString() {
+            return "IntLit{" + "value=" + value + "}";
+      }
 }

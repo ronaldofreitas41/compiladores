@@ -44,203 +44,298 @@ public class Interp extends NodeVisitor {
     }
 
     public void visit(Attrib c) {
-        // Avalia a expressão do lado direito e empilha o resultado
-        c.getExp().accept(this);
-        Object value = stk.pop(); // Pega o valor da expressão
 
-        // Avalia o lado esquerdo (lhs) para obter o nome da variável
-        if (c.getLhs() instanceof Id) {
-            Id var = (Id) c.getLhs();
-            String varName = var.getName();
-            varTable.put(varName, value); // Armazena a variável na tabela
+        c.getExp().accept(this);
+        Object value = stk.pop(); 
+
+        if (c.getLhs() instanceof LValue) {
+            LValue var = (LValue) c.getLhs();
+            String varName = var.getId(); 
+
+            varTable.put(varName, value);
         } else {
             throw new RuntimeException("Atribuição inválida! O lado esquerdo não é uma variável.");
         }
     }
 
 
+
     public Object getVarValue(String id) {
         return varTable.get(id);
     }
 
-    //Operação de &&
-    public void visit(And e) {
-        e.getLeft().accept(this);
-        Object leftObj = stk.pop();
+    /* EXPR Visitors - I */
+        //BinOp - Abstrato
+        //Var - Abstrato
 
-        e.getRight().accept(this);
-        Object rightObj = stk.pop();
+        // exp && exp
+        public void visit(And e) {
+            e.getLeft().accept(this);
+            Object leftObj = stk.pop();
 
-        // Verifica e converte para Boolean
-        boolean left = (leftObj instanceof Boolean) ? (Boolean) leftObj : false;
-        boolean right = (rightObj instanceof Boolean) ? (Boolean) rightObj : false;
+            e.getRight().accept(this);
+            Object rightObj = stk.pop();
 
-        stk.push(Boolean.valueOf(left && right));
-    }
+            // Verifica e converte para Boolean
+            boolean left = (leftObj instanceof Boolean) ? (Boolean) leftObj : false;
+            boolean right = (rightObj instanceof Boolean) ? (Boolean) rightObj : false;
 
-    // Verificação se dois elementos são diferentes
-    public void visit(Diff e) {
-        e.getLeft().accept(this);
-        Object leftObj = stk.pop();
+            stk.push(Boolean.valueOf(left && right));
+        }
 
-        e.getRight().accept(this);
-        Object rightObj = stk.pop();
+        // lvalue ‘[’ exp ‘]’
+        public void visit(ArrayAccess e) {
+            e.getArray().accept(this);
+            Object arrayObj = stk.pop();
+            e.getIndex().accept(this);
+            Object indexObj = stk.pop();
 
-        // Usa equals() para comparar corretamente objetos de diferentes tipos
-        boolean r = !leftObj.equals(rightObj);
+            Object[] array = (Object[]) arrayObj;
+            int index = (Integer) indexObj;
 
-        stk.push(Boolean.valueOf(r));
-    }
+            stk.push(array[index]);
+        }
 
-    //Verificação se dois elementos são iguais
-    public void visit(Equal e) {
-        e.getLeft().accept(this);
-        Object leftObj = stk.pop();
+        //true, false
+        public void visit(BoolLit e) {
+            stk.push(e.getValue());
+        }
 
-        e.getRight().accept(this);
-        Object rightObj = stk.pop();
+        // CHAR
+        public void visit(CharLit e) {
+            stk.push(e.getValue());
+        }
 
-        boolean r = leftObj.equals(rightObj);
+        // rexp != aexp
+        public void visit(Diff e) {
+            e.getLeft().accept(this);
+            Object leftObj = stk.pop();
 
-        stk.push(Boolean.valueOf(r));
-    }
+            e.getRight().accept(this);
+            Object rightObj = stk.pop();
 
-    //Operação de Maior que
-    public void visit(Greater e) {
-        e.getLeft().accept(this);
-        Object leftObj = stk.pop();
+            boolean r = !leftObj.equals(rightObj);
 
-        e.getRight().accept(this);
-        Object rightObj = stk.pop();
+            stk.push(Boolean.valueOf(r));
+        }
 
-        // Converte para Float se necessário
-        float left = (leftObj instanceof Integer) ? ((Integer) leftObj).floatValue() : (Float) leftObj;
-        float right = (rightObj instanceof Integer) ? ((Integer) rightObj).floatValue() : (Float) rightObj;
+        // mexp / sexp
+        public void visit(Div e) {
+            e.getLeft().accept(this);
+            e.getRight().accept(this);
 
-        stk.push(Boolean.valueOf(left > right));
-    }
+            Integer right = (Integer) stk.pop();
+            Integer left = (Integer) stk.pop();
 
-    //Operação de Menor que
-    public void visit(Less e) {
-        e.getLeft().accept(this);
-        Object leftObj = stk.pop();
+            stk.push(left / right);
+        }
 
-        e.getRight().accept(this);
-        Object rightObj = stk.pop();
+        // rexp == aexp
+        public void visit(Equal e) {
+            e.getLeft().accept(this);
+            Object leftObj = stk.pop();
 
-        // Converte para Float caso seja Integer
-        float left = (leftObj instanceof Integer) ? ((Integer) leftObj).floatValue() : (Float) leftObj;
-        float right = (rightObj instanceof Integer) ? ((Integer) rightObj).floatValue() : (Float) rightObj;
+            e.getRight().accept(this);
+            Object rightObj = stk.pop();
 
-        stk.push(Boolean.valueOf(left < right));
-    }
+            boolean r = leftObj.equals(rightObj);
 
+            stk.push(Boolean.valueOf(r));
+        }
 
-    //Operação de Resto
-    public void visit(Mod e) {
-        e.getLeft().accept(this);
-        Integer left = (Integer) stk.pop();
+        public void visit(FCall e) {
+            List<Object> evaluatedArgs = new ArrayList<>();
 
-        e.getRight().accept(this);
-        Integer right = (Integer) stk.pop();
+            for (Exp arg : e.getArgs()) {
+                arg.accept(this);
+                evaluatedArgs.add(stk.pop());
+            }
 
-        Integer r = left % right;
-        stk.push(r);
-    }
+            Function func = (Function) varTable.get(e.getFuncName());
+            if (func == null) {
+                throw new RuntimeException("Função não encontrada: " + e.getFuncName());
+            }
 
-    //Operação de Not
-    public void visit(Not e) {
-        e.getExp().accept(this);
-        boolean value = (Boolean) stk.pop();
-        stk.push(!value);
-    }
+            Object result = func.call(evaluatedArgs);
+            
+            if (result != null){
+                stk.push(result);   
+            }
+        }
 
+        // lvalue . ID
+        public void visit(FieldAccess e) {
+            e.getObject().accept(this);
+            Object objectObj = stk.pop();
+            
+            Map<String, Object> object = (Map<String, Object>) objectObj;
+            String fieldName = e.getFieldName();
 
-    //Operção de Subtração
-    public void visit(Sub e) {
-        e.getLeft().accept(this);
-        e.getRight().accept(this);
+            stk.push(object.get(fieldName));
+        }
 
-        Integer right = (Integer) stk.pop();
-        Integer left = (Integer) stk.pop();  
+        // FLOAT
+        public void visit(Floatlit e) {
+            stk.push(e.getValue());
+        }
 
-        stk.push(left - right);
-    }
+        // aexp > aexp
+        public void visit(Greater e) {
+            e.getLeft().accept(this);
+            Object leftObj = stk.pop();
 
-    //Operação de Soma
-    public void visit(Plus e) {
-        e.getLeft().accept(this);
-        e.getRight().accept(this);
+            e.getRight().accept(this);
+            Object rightObj = stk.pop();
 
-        Integer right = (Integer) stk.pop();
-        Integer left = (Integer) stk.pop();
+            // Converte para Float se necessário
+            float left = (leftObj instanceof Integer) ? ((Integer) leftObj).floatValue() : (Float) leftObj;
+            float right = (rightObj instanceof Integer) ? ((Integer) rightObj).floatValue() : (Float) rightObj;
 
-        stk.push(left + right);
-    }
+            stk.push(Boolean.valueOf(left > right));
+        }
 
-    //Operação de Multiplicação
-    public void visit(Times e) {
-        e.getLeft().accept(this);
-        e.getRight().accept(this);
+        // aexp < aexp
+        public void visit(Less e) {
+            e.getLeft().accept(this);
+            Object leftObj = stk.pop();
 
-        Integer right = (Integer) stk.pop();
-        Integer left = (Integer) stk.pop();
+            e.getRight().accept(this);
+            Object rightObj = stk.pop();
 
-        stk.push(left * right);
-    }
+            // Converte para Float caso seja Integer
+            float left = (leftObj instanceof Integer) ? ((Integer) leftObj).floatValue() : (Float) leftObj;
+            float right = (rightObj instanceof Integer) ? ((Integer) rightObj).floatValue() : (Float) rightObj;
 
-    //Operação de Divisão
-    public void visit(Div e) {
-        e.getLeft().accept(this);
-        e.getRight().accept(this);
+            stk.push(Boolean.valueOf(left < right));
+        }
 
-        Integer right = (Integer) stk.pop();
-        Integer left = (Integer) stk.pop();
+        // INT
+        public void visit(IntLit e) {
+            stk.push(e.getValue());
+        }
 
-        stk.push(left / right);
-    }
+        // lvalue
+        public void visit(LValue v) {
+            Object value = varTable.get(v.getId());
+            stk.push(value);
+        }
 
-    public void visit(Var e) {
-        // Obtém o valor da variável da tabela
-        Object value = getVarValue(e.getName());
+        // mexp % sexp
+        public void visit(Mod e) {
+            e.getLeft().accept(this);
+            Integer left = (Integer) stk.pop();
 
-        // Empilha o valor na pilha
-        stk.push(value);
-    }
+            e.getRight().accept(this);
+            Integer right = (Integer) stk.pop();
 
-    public void visit(IntLit e) {
-        stk.push(e.getValue());
-    }
-    public void visit(BoolLit e) {
-        stk.push(e.getValue());
-    }
-    public void visit(Floatlit e) {
-        stk.push(e.getValue());
-    }
+            Integer r = left % right;
+            stk.push(r);
+        }
 
-    public void visit(TyBool t) {
-        stk.push(t.getTypeName());
-    }
+        // new type [ ‘[’ exp ‘]’ ]
+        public void visit(NewArray e) {
+            e.getSizeExp().accept(this);
+            Object sizeObj = stk.pop();
+        
+            int size = (Integer) sizeObj;
+            Object[] array = new Object[size];
 
-    public void visit(TyInt t) {
-        stk.push(t.getTypeName());
-    }
+            stk.push(array);
+        }
 
-    public void visit(TyChar t) {
-        stk.push(t.getTypeName());
-    }
+        // ! sexp
+        public void visit(Not e) {
+            e.getExp().accept(this);
+            boolean value = (Boolean) stk.pop();
+            stk.push(!value);
+        }
 
-    public void visit(TyFloat t) {
-        stk.push(t.getTypeName());
-    }
+        // null
+        public void visit(NullLit e) {
+            stk.push(null);
+        }
 
-    public void visit(TyId t) {
-        stk.push(t.getTypeName());
-    }
+        // aexp - mexp
+        public void visit(Sub e) {
+            e.getLeft().accept(this);
+            e.getRight().accept(this);
 
-    public void visit(TyNull t) {
-        stk.push(t.getTypeName());
-    }
+            Integer right = (Integer) stk.pop();
+            Integer left = (Integer) stk.pop();  
+
+            stk.push(left - right);
+        }
+
+        // aexp + mexp
+        public void visit(Plus e) {
+            e.getLeft().accept(this);
+            e.getRight().accept(this);
+
+            Integer right = (Integer) stk.pop();
+            Integer left = (Integer) stk.pop();
+
+            stk.push(left + right);
+        }
+
+        // mexp * sexp
+        public void visit(Times e) {
+            e.getLeft().accept(this);
+            e.getRight().accept(this);
+
+            Integer right = (Integer) stk.pop();
+            Integer left = (Integer) stk.pop();
+
+            stk.push(left * right);
+        }
+
+        // - sexp
+        public void visit(UnaryMinus e) {
+            e.getExp().accept(this);
+            Object valueObj = stk.pop();
+            
+            float value = (valueObj instanceof Integer) ? ((Integer) valueObj).floatValue() : (Float) valueObj;
+            
+            stk.push(-value); 
+        }
+
+        public void visit(Var e) {
+            if (!varTable.containsKey(e.getName())) {
+                throw new RuntimeException("Variável não definida: " + e.getName());
+            }
+            Object value = getVarValue(e.getName());
+            stk.push(value);
+        }
+
+    /* EXPR Visitors - F */
+    
+    
+    
+
+    /* Type Visitors - I */
+        public void visit(TyBool t) {
+            stk.push(t.getTypeName());
+        }
+
+        public void visit(TyInt t) {
+            stk.push(t.getTypeName());
+        }
+
+        public void visit(TyChar t) {
+            stk.push(t.getTypeName());
+        }
+
+        public void visit(TyFloat t) {
+            stk.push(t.getTypeName());
+        }
+
+        public void visit(TyId t) {
+            stk.push(t.getTypeName());
+        }
+
+        public void visit(TyNull t) {
+            stk.push(t.getTypeName());
+        }
+    /* Type Visitors - F */
 
     @Override
     public void visit(Assign c) {
@@ -398,35 +493,13 @@ public class Interp extends NodeVisitor {
         throw new UnsupportedOperationException("Unimplemented method 'visit'");
     }
 
-    @Override
-    public void visit(CharLit e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
 
-    @Override
-    public void visit(Exp e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
 
-    @Override
-    public void visit(FCall e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
 
-    @Override
-    public void visit(LValue e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
 
-    @Override
-    public void visit(NullLit e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
-    }
+
+
+
 
     @Override
     public void visit(LType t) {
